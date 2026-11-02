@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { ManageRolesDrawer } from "../components/ManageRolesDrawer";
+import { RoleModulesCell } from "../components/RoleModulesCell";
 import { ManageUsersDrawer } from "../components/ManageUsersDrawer";
 import { RoleDetailsDrawer } from "../components/RoleDetailsDrawer";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
@@ -372,7 +373,9 @@ export function UserManagementPage() {
                           {row.roleType}
                         </span>
                       </td>
-                      <td className="um-col-role-module">{row.module}</td>
+                      <td className="um-col-role-module">
+                        <RoleModulesCell modules={row.modules} />
+                      </td>
                       <td className="um-col-total-users">
                         <button
                           type="button"

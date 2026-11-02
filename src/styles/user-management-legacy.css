@@ -472,13 +472,23 @@
 }
 
 .um-col-role-module {
-  width: 14%;
+  width: 16%;
+  min-width: 9rem;
 }
 
 .um-table td.um-col-role-module {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  vertical-align: top;
+  line-height: 1.35;
+}
+
+.um-role-modules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1875rem;
+}
+
+.um-role-modules__item {
+  display: block;
 }
 
 .um-table th.um-col-role-type,

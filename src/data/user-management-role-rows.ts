@@ -4,7 +4,8 @@ export type UserManagementRoleRow = {
   id: string;
   roleName: string;
   roleType: RoleType;
-  module: string;
+  /** One module for new modular roles; legacy roles may list several */
+  modules: string[];
   totalUsers: number;
   roleDescription: string;
   selectedPersona?: string;
@@ -20,7 +21,7 @@ export const USER_MANAGEMENT_ROLE_ROWS: UserManagementRoleRow[] = [
     id: "standard-faculty",
     roleName: "Standard Faculty Role",
     roleType: "Standard",
-    module: "ClinEd",
+    modules: ["ClinEd", "Curriculum Management", "Placement Student"],
     totalUsers: 62,
     roleDescription:
       "Provides access to faculty-specific modules including student evaluations, course management, and reporting.",
@@ -30,7 +31,7 @@ export const USER_MANAGEMENT_ROLE_ROWS: UserManagementRoleRow[] = [
     id: "program-super-admin",
     roleName: "Program Super Administrator",
     roleType: "Standard",
-    module: "Curriculum Management",
+    modules: ["Curriculum Management", "ClinEd", "Compliance", "Placement Student"],
     totalUsers: 4,
     roleDescription:
       "Full administrative access to program configuration, user management, and all module settings.",
@@ -41,7 +42,7 @@ export const USER_MANAGEMENT_ROLE_ROWS: UserManagementRoleRow[] = [
     id: "global",
     roleName: "Global",
     roleType: "Standard",
-    module: "Compliance",
+    modules: ["ClinEd", "Curriculum Management", "Compliance", "Placement Student"],
     totalUsers: 3,
     roleDescription:
       "Institution-wide access across all programs and modules with read and write permissions.",
@@ -50,7 +51,7 @@ export const USER_MANAGEMENT_ROLE_ROWS: UserManagementRoleRow[] = [
     id: "clinical-coordinator",
     roleName: "Clinical Coordinator",
     roleType: "Standard",
-    module: "Placement Student",
+    modules: ["Placement Student"],
     showNewTag: true,
     totalUsers: 2,
     roleDescription:
@@ -60,7 +61,7 @@ export const USER_MANAGEMENT_ROLE_ROWS: UserManagementRoleRow[] = [
     id: "compliance-admin",
     roleName: "Compliance Administrator",
     roleType: "Standard",
-    module: "Compliance",
+    modules: ["Compliance"],
     showNewTag: true,
     totalUsers: 1,
     roleDescription:
@@ -70,7 +71,7 @@ export const USER_MANAGEMENT_ROLE_ROWS: UserManagementRoleRow[] = [
     id: "custom-admissions",
     roleName: "Admissions Reviewer (Custom)",
     roleType: "Custom",
-    module: "Curriculum Management",
+    modules: ["Curriculum Management"],
     showNewTag: true,
     totalUsers: 1,
     roleDescription:
@@ -80,7 +81,7 @@ export const USER_MANAGEMENT_ROLE_ROWS: UserManagementRoleRow[] = [
     id: "student",
     roleName: "Student",
     roleType: "Standard",
-    module: "Placement Student",
+    modules: ["Placement Student"],
     showNewTag: true,
     totalUsers: 0,
     roleDescription: "-",
@@ -89,7 +90,7 @@ export const USER_MANAGEMENT_ROLE_ROWS: UserManagementRoleRow[] = [
     id: "preceptor",
     roleName: "Preceptor",
     roleType: "Standard",
-    module: "ClinEd",
+    modules: ["ClinEd"],
     showNewTag: true,
     totalUsers: 0,
     roleDescription: "-",
@@ -98,7 +99,7 @@ export const USER_MANAGEMENT_ROLE_ROWS: UserManagementRoleRow[] = [
     id: "read-only",
     roleName: "Program Read Only Administrator",
     roleType: "Standard",
-    module: "Curriculum Management",
+    modules: ["Curriculum Management"],
     showNewTag: true,
     totalUsers: 0,
     roleDescription:
@@ -109,7 +110,7 @@ export const USER_MANAGEMENT_ROLE_ROWS: UserManagementRoleRow[] = [
     id: "reporting",
     roleName: "Reporting Analyst",
     roleType: "Standard",
-    module: "Compliance",
+    modules: ["Compliance"],
     showNewTag: true,
     totalUsers: 0,
     roleDescription:
