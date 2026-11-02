@@ -1,0 +1,425 @@
+/**
+ * Leo AI colors and gradients.
+ * Source of truth: leo-ai-q2-main (shell, brand, CTA, and the welcome-screen blobs).
+ *
+ * Light is the default on :root. Dark replaces those values on .theme-leo-dark
+ * or html.theme-leo-dark. Put the class on the Leo shell, not on a Prism theme.
+ * Prism theme classes and Leo theme classes are separate.
+ */
+
+:root,
+.theme-leo-light,
+html.theme-leo-light {
+  /* Brand and CTA */
+  --leo-brand: #e31c79;
+  --leo-cta-bg: #c41568;
+  --leo-cta-bg-hover: #a01058;
+  --leo-cta-bg-active: #8e0f4f;
+  --leo-cta-fg: #ffffff;
+  --leo-cta-focus: #c41568;
+
+  /* Shell */
+  --leo-primary: #3f51b5;
+  --leo-primary-hover: #35459a;
+  --leo-primary-foreground: #ffffff;
+  --leo-background: #ffffff;
+  --leo-foreground: rgba(0, 0, 0, 0.87);
+  --leo-hero: rgba(0, 0, 0, 0.9);
+  --leo-text: rgba(0, 0, 0, 0.87);
+  --leo-text-secondary: rgba(0, 0, 0, 0.55);
+  --leo-bullet: rgba(0, 0, 0, 0.78);
+  --leo-bullet-dot: rgba(0, 0, 0, 0.5);
+  --leo-card: #ffffff;
+  --leo-card-foreground: rgba(0, 0, 0, 0.87);
+  --leo-popover: #ffffff;
+  --leo-border: rgba(0, 0, 0, 0.1);
+  --leo-input: transparent;
+  --leo-muted: #ececf0;
+  --leo-muted-foreground: #717182;
+  --leo-accent: #e9ebef;
+  --leo-destructive: #d4183d;
+
+  /* Suggestion cards */
+  --leo-suggestion-bg: #ffffff;
+  --leo-suggestion-bg-hover: #f8fafc;
+  --leo-suggestion-bg-active: #f1f5f9;
+  --leo-suggestion-border: rgba(0, 0, 0, 0.08);
+  --leo-suggestion-border-hover: rgba(0, 0, 0, 0.14);
+
+  /* Welcome-screen blobs (intro / high intensity) */
+  --leo-blob-1: #c084fc;
+  --leo-blob-2: #60a5fa;
+  --leo-blob-3: #fbbf24;
+  --leo-blob-1-opacity: 1;
+  --leo-blob-2-opacity: 1;
+  --leo-blob-3-opacity: 1;
+
+  /* Resting blobs, used once a conversation is open */
+  --leo-blob-rest-1: #d8b4fe;
+  --leo-blob-rest-2: #a5d0fe;
+  --leo-blob-rest-3: #fde68a;
+  --leo-blob-rest-1-opacity: 0.85;
+  --leo-blob-rest-2-opacity: 0.82;
+  --leo-blob-rest-3-opacity: 0.85;
+
+  /* Drawer wash behind the composer */
+  --leo-wash-1: #e9d5ff;
+  --leo-wash-2: #bfdbfe;
+  --leo-wash-3: #fef08a;
+
+  --leo-gradient-blob-1: radial-gradient(circle, var(--leo-blob-1) 0%, transparent 72%);
+  --leo-gradient-blob-2: radial-gradient(circle, var(--leo-blob-2) 0%, transparent 72%);
+  --leo-gradient-blob-3: radial-gradient(circle, var(--leo-blob-3) 0%, transparent 72%);
+  --leo-gradient-blob-rest-1: radial-gradient(circle, var(--leo-blob-rest-1) 0%, transparent 72%);
+  --leo-gradient-blob-rest-2: radial-gradient(circle, var(--leo-blob-rest-2) 0%, transparent 72%);
+  --leo-gradient-blob-rest-3: radial-gradient(circle, var(--leo-blob-rest-3) 0%, transparent 72%);
+  --leo-gradient-drawer:
+    radial-gradient(circle at 20% 80%, var(--leo-wash-1) 0%, transparent 40%),
+    radial-gradient(circle at 70% 70%, var(--leo-wash-2) 0%, transparent 35%),
+    radial-gradient(circle at 50% 100%, var(--leo-wash-3) 0%, transparent 50%),
+    var(--leo-background);
+
+  /* Blob geometry from AnimatedBlobBackground. Same in window, drawer, panel and page. */
+  --leo-blob-blur: 64px;
+  --leo-blob-cluster-max: 600px;
+  --leo-blob-1-size: min(480px, 90vw);
+  --leo-blob-2-size: min(460px, 85vw);
+  --leo-blob-3-size: min(420px, 80vw);
+  --leo-blob-1-left: -5%;
+  --leo-blob-2-right: -5%;
+  --leo-blob-3-left: 50%;
+  --leo-blob-1-bottom: -5%;
+  --leo-blob-2-bottom: -8%;
+  --leo-blob-3-bottom: -10%;
+
+  /* Surface sizes from leoWindowSize.ts and leoDrawerWidth.ts */
+  --leo-window-width: 520px;
+  --leo-window-height: 640px;
+  --leo-window-radius: 32px;
+  --leo-drawer-width: clamp(360px, 42vw, 960px);
+  --leo-panel-width: clamp(320px, 34vw, 720px);
+  --leo-column-max: 672px;
+  --leo-blob-spread-duration: 2.8s;
+  --leo-blob-float-1-duration: 20s;
+  --leo-blob-float-2-duration: 22s;
+  --leo-blob-float-3-duration: 24s;
+  --leo-blob-think-1-duration: 6s;
+  --leo-blob-think-2-duration: 7s;
+  --leo-blob-think-3-duration: 8s;
+  --leo-font-hero: "ivypresto-text", "Instrument Serif", Georgia, serif;
+  --leo-font-ui: "Source Sans Pro", "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --leo-scrollbar-thumb: rgba(0, 0, 0, 0.22);
+}
+
+.theme-leo-dark,
+html.theme-leo-dark {
+  --leo-background: #1a1a1e;
+  --leo-foreground: rgba(255, 255, 255, 0.92);
+  --leo-hero: rgba(255, 255, 255, 0.92);
+  --leo-text: rgba(255, 255, 255, 0.92);
+  --leo-text-secondary: rgba(255, 255, 255, 0.72);
+  --leo-bullet: rgba(255, 255, 255, 0.82);
+  --leo-bullet-dot: rgba(255, 255, 255, 0.5);
+  --leo-card: #2a2a2e;
+  --leo-card-foreground: rgba(255, 255, 255, 0.92);
+  --leo-popover: #2a2a2e;
+  --leo-border: rgba(255, 255, 255, 0.1);
+  --leo-input: rgba(255, 255, 255, 0.08);
+  --leo-muted: rgba(255, 255, 255, 0.06);
+  --leo-muted-foreground: rgba(255, 255, 255, 0.55);
+  --leo-accent: rgba(255, 255, 255, 0.08);
+  --leo-primary: #3f51b5;
+  --leo-primary-foreground: #ffffff;
+
+  --leo-suggestion-bg: #2a2a2e;
+  --leo-suggestion-bg-hover: #323238;
+  --leo-suggestion-bg-active: #3a3a40;
+  --leo-suggestion-border: rgba(255, 255, 255, 0.1);
+  --leo-suggestion-border-hover: rgba(255, 255, 255, 0.16);
+
+  --leo-blob-1: #6d28d9;
+  --leo-blob-2: #2563eb;
+  --leo-blob-3: #92400e;
+  --leo-blob-rest-1: #7c3aed;
+  --leo-blob-rest-2: #3b82f6;
+  --leo-blob-rest-3: #b45309;
+  --leo-blob-rest-1-opacity: 0.55;
+  --leo-blob-rest-2-opacity: 0.5;
+  --leo-blob-rest-3-opacity: 0.5;
+  /* Gradients must be restated here. A var() inside a custom property is
+     substituted where it is declared, so the :root gradients stay light. */
+  --leo-gradient-blob-1: radial-gradient(circle, var(--leo-blob-1) 0%, transparent 72%);
+  --leo-gradient-blob-2: radial-gradient(circle, var(--leo-blob-2) 0%, transparent 72%);
+  --leo-gradient-blob-3: radial-gradient(circle, var(--leo-blob-3) 0%, transparent 72%);
+  --leo-gradient-blob-rest-1: radial-gradient(circle, var(--leo-blob-rest-1) 0%, transparent 72%);
+  --leo-gradient-blob-rest-2: radial-gradient(circle, var(--leo-blob-rest-2) 0%, transparent 72%);
+  --leo-gradient-blob-rest-3: radial-gradient(circle, var(--leo-blob-rest-3) 0%, transparent 72%);
+
+  --leo-wash-1: #4c1d95;
+  --leo-wash-2: #1e3a8a;
+  --leo-wash-3: #78350f;
+  --leo-gradient-drawer: linear-gradient(
+    to top,
+    #3a3148 0%,
+    #34364a 33%,
+    #3d382c 50%,
+    #1a1a1e 100%
+  );
+
+  --leo-scrollbar-thumb: rgba(255, 255, 255, 0.28);
+}
+
+/* Role tokens only inside a Leo shell, so Prism themes on <html> stay intact. */
+.theme-leo-light,
+html.theme-leo-light,
+.theme-leo-dark,
+html.theme-leo-dark {
+  --background: var(--leo-background);
+  --foreground: var(--leo-foreground);
+  --card: var(--leo-card);
+  --card-foreground: var(--leo-card-foreground);
+  --popover: var(--leo-popover);
+  --popover-foreground: var(--leo-foreground);
+  --primary: var(--leo-primary);
+  --primary-foreground: var(--leo-primary-foreground);
+  --muted: var(--leo-muted);
+  --muted-foreground: var(--leo-muted-foreground);
+  --accent: var(--leo-accent);
+  --border: var(--leo-border);
+  --input: var(--leo-input);
+  --destructive: var(--leo-destructive);
+  color: var(--leo-foreground);
+  background-color: var(--leo-background);
+}
+
+@theme inline {
+  --color-leo-brand: var(--leo-brand);
+  --color-leo-cta: var(--leo-cta-bg);
+  --color-leo-cta-foreground: var(--leo-cta-fg);
+  --color-leo-primary: var(--leo-primary);
+  --color-leo-background: var(--leo-background);
+  --color-leo-foreground: var(--leo-foreground);
+  --color-leo-hero: var(--leo-hero);
+  --color-leo-text: var(--leo-text);
+  --color-leo-text-secondary: var(--leo-text-secondary);
+  --color-leo-card: var(--leo-card);
+  --color-leo-border: var(--leo-border);
+  --color-leo-muted: var(--leo-muted);
+  --color-leo-suggestion: var(--leo-suggestion-bg);
+  --color-leo-blob-1: var(--leo-blob-1);
+  --color-leo-blob-2: var(--leo-blob-2);
+  --color-leo-blob-3: var(--leo-blob-3);
+}
+
+/* Markup and placement match AnimatedBlobBackground:
+   .leo-ai-blob-layer > .leo-ai-blob-root > .leo-ai-blob-frame.leo-ai-blob-spread > .leo-ai-blob.leo-ai-blob-N.leo-ai-blob-N--animate
+   Blob 3's float animation replaces its translateX(-50%), so in Leo it sits right of center.
+   Keep the animate class on the blob itself or the blobs collapse into one centered orb. */
+.leo-ai-blob-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.leo-ai-blob-root {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.leo-ai-blob-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  max-width: 600px;
+  margin-inline: auto;
+}
+.leo-ai-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(var(--leo-blob-blur));
+}
+.leo-ai-blob-1 {
+  background: radial-gradient(circle, var(--leo-blob-1) 0%, transparent 72%);
+  bottom: var(--leo-blob-1-bottom);
+  left: var(--leo-blob-1-left);
+  width: var(--leo-blob-1-size);
+  height: var(--leo-blob-1-size);
+  opacity: var(--leo-blob-1-opacity);
+}
+.leo-ai-blob-2 {
+  background: radial-gradient(circle, var(--leo-blob-2) 0%, transparent 72%);
+  bottom: var(--leo-blob-2-bottom);
+  right: var(--leo-blob-2-right);
+  width: var(--leo-blob-2-size);
+  height: var(--leo-blob-2-size);
+  opacity: var(--leo-blob-2-opacity);
+}
+.leo-ai-blob-3 {
+  background: radial-gradient(circle, var(--leo-blob-3) 0%, transparent 72%);
+  bottom: var(--leo-blob-3-bottom);
+  left: var(--leo-blob-3-left);
+  transform: translateX(-50%);
+  width: var(--leo-blob-3-size);
+  height: var(--leo-blob-3-size);
+  opacity: var(--leo-blob-3-opacity);
+}
+
+/* Spread once, then float. Thinking swaps the float for a faster drift. */
+@keyframes leo-blob-spread {
+  0%   { transform: scale(0.25); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes leo-blob-gentle-1 {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(10%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes leo-blob-gentle-2 {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(-10%, 2%); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes leo-blob-gentle-3 {
+  0%   { transform: translate(0, 0); }
+  50%  { transform: translate(5%, -2%); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes leo-blob-think-1 {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(14%, 5%); }
+  50%  { transform: translate(-3%, -2%); }
+  75%  { transform: translate(8%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes leo-blob-think-2 {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-12%, 4%); }
+  50%  { transform: translate(2%, -2%); }
+  75%  { transform: translate(-7%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes leo-blob-think-3 {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(7%, -4%); }
+  50%  { transform: translate(-2%, 2%); }
+  75%  { transform: translate(4%, -2%); }
+  100% { transform: translate(0, 0); }
+}
+
+.leo-ai-blob-spread {
+  animation: leo-blob-spread var(--leo-blob-spread-duration) cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: 50% 65%;
+}
+.leo-ai-blob-1--animate { animation: leo-blob-gentle-1 var(--leo-blob-float-1-duration) ease-in-out infinite; }
+.leo-ai-blob-2--animate { animation: leo-blob-gentle-2 var(--leo-blob-float-2-duration) ease-in-out infinite; }
+.leo-ai-blob-3--animate { animation: leo-blob-gentle-3 var(--leo-blob-float-3-duration) ease-in-out infinite; }
+.leo-ai-blob-thinking .leo-ai-blob-1--animate { animation: leo-blob-think-1 var(--leo-blob-think-1-duration) ease-in-out infinite; }
+.leo-ai-blob-thinking .leo-ai-blob-2--animate { animation: leo-blob-think-2 var(--leo-blob-think-2-duration) ease-in-out infinite; }
+.leo-ai-blob-thinking .leo-ai-blob-3--animate { animation: leo-blob-think-3 var(--leo-blob-think-3-duration) ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .leo-ai-blob-spread,
+  .leo-ai-blob-1--animate,
+  .leo-ai-blob-2--animate,
+  .leo-ai-blob-3--animate {
+    animation: none;
+  }
+}
+
+/* Chat type field, copied from ai-animations.css.
+   Idle until the user types and presses Enter. Sending swaps in
+   .ai-composer-analyzing: the wash shifts, the border turns purple,
+   a blue glow appears, and the field lifts 2px. */
+@keyframes ai-composer-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.ai-composer-idle {
+  background-color: rgba(255, 255, 255, 0.78);
+  background-image: none;
+  border-color: rgba(0, 0, 0, 0.14);
+  -webkit-backdrop-filter: blur(12px) saturate(1.06);
+  backdrop-filter: blur(12px) saturate(1.06);
+  transition:
+    background-color 180ms ease-out,
+    border-color 180ms ease-out,
+    -webkit-backdrop-filter 180ms ease-out,
+    backdrop-filter 180ms ease-out;
+}
+.ai-composer-idle:focus-within {
+  background-color: #ffffff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.dark .ai-composer-idle,
+.theme-leo-dark .ai-composer-idle {
+  background-color: rgba(42, 42, 46, 0.78);
+  background-image: none;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.dark .ai-composer-idle:focus-within,
+.theme-leo-dark .ai-composer-idle:focus-within {
+  background-color: #2a2a2e;
+}
+
+.ai-composer-analyzing {
+  background-color: transparent;
+  background-image: linear-gradient(90deg, #f3e8ff 0%, #dbeafe 33%, #e0e7ff 66%, #f3e8ff 100%);
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  animation: ai-composer-gradient-shift 2s ease-in-out infinite;
+  border-color: #e9d5ff !important;
+  box-shadow:
+    0 4px 24px rgba(59, 130, 246, 0.28),
+    0 2px 10px rgba(99, 102, 241, 0.18);
+  transform: translateY(-2px);
+}
+.dark .ai-composer-analyzing,
+.theme-leo-dark .ai-composer-analyzing {
+  background-image: linear-gradient(
+    90deg,
+    oklch(0.28 0.06 300) 0%,
+    oklch(0.28 0.06 260) 33%,
+    oklch(0.28 0.07 275) 66%,
+    oklch(0.28 0.06 300) 100%
+  );
+  border-color: oklch(0.45 0.12 300) !important;
+  box-shadow:
+    0 4px 28px rgba(96, 165, 250, 0.25),
+    0 2px 12px rgba(129, 140, 248, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-composer-idle,
+  .dark .ai-composer-idle,
+  .theme-leo-dark .ai-composer-idle {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: rgba(255, 255, 255, 0.94);
+  }
+  .dark .ai-composer-idle,
+  .theme-leo-dark .ai-composer-idle { background-color: rgba(42, 42, 46, 0.94); }
+  .ai-composer-idle:focus-within { background-color: #ffffff; }
+  .dark .ai-composer-idle:focus-within,
+  .theme-leo-dark .ai-composer-idle:focus-within { background-color: #2a2a2e; }
+  .ai-composer-analyzing { animation: none; background-position: 40% 50%; }
+}
+
+/* Full-page shell. Window and panel keep the 600px cluster above.
+   Blob 3's float replaces translateX(-50%), so left is the left edge.
+   Purple sits left, blue is the large middle glow, yellow (light) or
+   orange (dark) sits on the right. */
+.leo-ai-shell--page .leo-ai-blob-frame,
+.leo-screen--page .leo-ai-blob-frame { max-width: none; }
+.leo-ai-shell--page .leo-ai-blob-1,
+.leo-screen--page .leo-ai-blob-1 { width: 680px; height: 680px; left: 4%; bottom: -14%; }
+.leo-ai-shell--page .leo-ai-blob-2,
+.leo-screen--page .leo-ai-blob-2 { width: 720px; height: 720px; right: auto; left: 30%; bottom: -16%; }
+.leo-ai-shell--page .leo-ai-blob-3,
+.leo-screen--page .leo-ai-blob-3 { width: 560px; height: 560px; left: 52%; bottom: -18%; }

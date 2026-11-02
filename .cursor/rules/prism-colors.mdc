@@ -1,0 +1,45 @@
+---
+description: Use Prism tokens when building UI. Use Leo only if the user asks for Leo.
+alwaysApply: true
+---
+
+# Prism colors
+
+Prism is the design system. Leo AI is a small extra set of tokens, not a screen to build on its own.
+
+Do not build UI unless the user asks for it in a later message. Installing these files never includes a demo, a welcome screen, a logo, a greeting, or an Ask Leo field.
+
+Source: https://github.com/Exxat-Design/PRISM-tokens (branch main), folder tokens. That repo is the single source of truth. Do not edit the copied token files. Change colors in the source repo, then copy the new files over.
+
+When the user asks you to build or restyle UI:
+- Never hardcode hex, rgb, or named colors. Use tokens.
+- Product UI: --prism-* tokens or Tailwind classes (bg-prism-surface, text-prism-primary).
+- Generic UI primitives (shadcn): role classes (bg-primary, bg-card, text-muted-foreground, border-border).
+- Filled primary buttons: bg-prism-primary-darker with text-primary-foreground.
+- Status: pair a -bg token with its -fg token. Solid fills use -solid with white text.
+- Row, chip, and menu hovers: bg-prism-primary-hover-faint.
+- Prism themes are classes on <html>: theme-blue-light, theme-blue-dark, theme-purple-light, theme-purple-dark, theme-highcontrast-light, theme-highcontrast-dark. Add "dark" for dark themes.
+- Every text pair must reach 4.5:1, and icons or borders 3:1, in all six themes.
+
+# Leo AI
+
+Use Leo only when the user asks for a Leo AI chat or a Leo surface. Do not add Leo to a screen they did not ask for. The notes below are a reference for that later request. Do not build them while reading this rule.
+
+File: tokens/leo-tokens.css. Do not recreate its colors, gradients, or animations.
+
+- Put theme-leo-light or theme-leo-dark on the Leo shell only. Never combine that class with a Prism theme class.
+- Tokens: --leo-background, --leo-foreground, --leo-hero, --leo-font-hero, --leo-brand, --leo-primary, --leo-primary-foreground.
+- Welcome glow markup, only when a Leo welcome screen is requested: .leo-ai-blob-layer > .leo-ai-blob-root > .leo-ai-blob-frame.leo-ai-blob-spread > .leo-ai-blob.leo-ai-blob-1.leo-ai-blob-1--animate (and 2, 3). Keep each --animate class on the blob itself.
+- A full-page Leo shell also gets leo-ai-shell--page. Window and panel shells do not. Add leo-ai-blob-thinking on .leo-ai-blob-root only while Leo is thinking.
+- Ask Leo field, only when a Leo composer is requested: placeholder Ask Leo, class ai-composer-idle at rest. Enter without Shift sends a non-empty message and swaps in ai-composer-analyzing until the reply ends or the user presses Stop or Escape. Shift+Enter is a newline. Do not restyle that animation.
+- If a Leo mark or Hello, Sarah greeting is requested, keep the 2s stroke draw and the 26ms typewriter. Do not retune them.
+
+# Skills and agents
+
+These are installed with Prism. Their presence is not a request to build a screen. Do not edit the copied files.
+
+- AGENTS.md at the project root is the agent guide. Read it only when a later request needs it.
+- The same skills are in .cursor/skills and .agents/skills. Load the one skill that matches the later request. Do not load the whole set during setup.
+- When the user later asks to create, rebuild, or redesign a surface, load .cursor/skills/exxat-senior-ux/SKILL.md first. Post the design brief and wait. Do not write code in that same turn.
+- Load .cursor/skills/exxat-domain-context/SKILL.md when the task mentions Exxat domain concepts such as placement, preceptor, compliance, accreditation, or Prism. Do not invent personas.
+- Workflows are in .agents/workflows. Run one only when the user asks for that workflow.
