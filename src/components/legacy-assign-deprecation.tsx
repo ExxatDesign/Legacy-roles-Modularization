@@ -1,5 +1,6 @@
 export const LEGACY_ASSIGN_DEPRECATION_LINES = [
-  "You cannot assign new users to this role as this is slowly being deprecated.",
+  "You cannot assign new users to this role as this is slowly",
+  "being deprecated.",
   "Don't worry, your current access will be preserved.",
 ] as const;
 
