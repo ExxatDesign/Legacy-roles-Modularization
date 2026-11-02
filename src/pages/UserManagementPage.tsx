@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from "react";
 import { ManageRolesDrawer } from "../components/ManageRolesDrawer";
 import { RoleModulesCell } from "../components/RoleModulesCell";
+import { ModularizationBanner } from "../components/ModularizationBanner";
+import { RoleNameWithTags } from "../components/RoleNameWithTags";
 import { ManageUsersDrawer } from "../components/ManageUsersDrawer";
 import { RoleDetailsDrawer } from "../components/RoleDetailsDrawer";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
@@ -206,7 +208,7 @@ function isEmptyLogin(value: string) {
 }
 
 export function UserManagementPage() {
-  const [rolesView, setRolesView] = useState<RolesView>("by-name");
+  const [rolesView, setRolesView] = useState<RolesView>("by-role");
   const [roleDetailsRow, setRoleDetailsRow] = useState<UserManagementRoleRow | null>(null);
   const [manageUsersRole, setManageUsersRole] = useState<UserManagementRoleRow | null>(null);
   const [manageRolesUser, setManageRolesUser] = useState<UserManagementRow | null>(null);
@@ -280,6 +282,7 @@ export function UserManagementPage() {
 
       <section className="um-content">
         <div className="um-content-inset">
+          <ModularizationBanner />
           <div className="um-sub-tabs" role="tablist" aria-label="User roles view">
             <button
               type="button"
@@ -342,7 +345,7 @@ export function UserManagementPage() {
                   <tr>
                     <th className="um-col-role-name">Role Name</th>
                     <th className="um-col-role-type">Role Type</th>
-                    <th className="um-col-role-module">Module</th>
+                    <th className="um-col-role-module">Module(s)</th>
                     <th className="um-col-total-users">
                       <span className="um-th-sort">
                         Total Users
@@ -357,12 +360,7 @@ export function UserManagementPage() {
                   {USER_MANAGEMENT_ROLE_ROWS.map((row) => (
                     <tr key={row.id}>
                       <td className="um-col-role-name">
-                        <span className="um-role-name-cell">
-                          <span>{row.roleName}</span>
-                          {row.showNewTag ? (
-                            <span className="um-role-new-tag">New</span>
-                          ) : null}
-                        </span>
+                        <RoleNameWithTags roleName={row.roleName} showNewTag={row.showNewTag} />
                       </td>
                       <td className="um-col-role-type">
                         <span
@@ -503,7 +501,7 @@ export function UserManagementPage() {
             </label>
             <div className="um-paginator__divider" aria-hidden />
             <span className="um-paginator__range">
-              {rolesView === "by-role" ? "1 – 10 of 38" : "1 – 10 of 67"}
+              {rolesView === "by-role" ? "1 – 10 of 15" : "1 – 10 of 67"}
             </span>
             <div className="um-paginator__divider" aria-hidden />
             <div className="um-paginator__nav">

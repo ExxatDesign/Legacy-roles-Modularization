@@ -1,7 +1,7 @@
 export const LEGACY_ASSIGN_DEPRECATION_LINES = [
-  "You cannot assign new users to this role as this is slowly",
-  "being deprecated.",
-  "Don't worry, your current access will be preserved.",
+  "Legacy standard roles are being phased out. Assign and reassign",
+  "for this role is turned off for now—choose a New role instead.",
+  "Don't worry: all current assignments and access are preserved.",
 ] as const;
 
 export function LegacyAssignDeprecationCopy({ idPrefix }: { idPrefix: string }) {

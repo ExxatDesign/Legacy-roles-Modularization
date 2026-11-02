@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   LegacyAssignDeprecationAlert,
 } from "./legacy-assign-deprecation";
+import { RoleNameWithTags } from "./RoleNameWithTags";
 import type { UserManagementRow } from "../data/user-management-rows";
 import {
   getAssignedRolesForUser,
@@ -153,7 +154,7 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
                   <tr>
                     <th className="um-col-mr-name">Role Name</th>
                     <th className="um-col-mr-desc">Role Description</th>
-                    <th className="um-col-mr-module">Module</th>
+                    <th className="um-col-mr-module">Module(s)</th>
                     {!isUnassignedView ? (
                       <th className="um-col-mr-datetime">Assigned Date and Time</th>
                     ) : null}
@@ -165,7 +166,12 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
                     const legacyAssignBlocked = isUnassignedView && roleRow.allowAssign === false;
                     return (
                       <tr key={roleRow.id}>
-                        <td className="um-col-mr-name">{roleRow.roleName}</td>
+                        <td className="um-col-mr-name">
+                          <RoleNameWithTags
+                            roleName={roleRow.roleName}
+                            showNewTag={isUnassignedView && roleRow.allowAssign === true}
+                          />
+                        </td>
                         <td className="um-col-mr-desc">{roleRow.roleDescription}</td>
                         <td className="um-col-mr-module">{roleRow.module}</td>
                         {!isUnassignedView ? (

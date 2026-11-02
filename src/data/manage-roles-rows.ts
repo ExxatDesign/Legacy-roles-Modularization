@@ -1,4 +1,7 @@
 import type { UserManagementRow } from "./user-management-rows";
+import { MODULAR_ROLES_SC1 } from "./modular-roles-sc1";
+import { MODULAR_ROLES_SC2_NEW } from "./modular-roles-sc2";
+import type { UserManagementRoleRow } from "./user-management-role-types";
 
 export type ManageRolesAssignmentRow = {
   id: string;
@@ -6,9 +9,22 @@ export type ManageRolesAssignmentRow = {
   roleDescription: string;
   module: string;
   assignedDateTime?: string;
-  /** Unassigned list — false shows blocked Assign + deprecation popup */
   allowAssign?: boolean;
 };
+
+function toManageRow(role: UserManagementRoleRow, allowAssign: boolean): ManageRolesAssignmentRow {
+  return {
+    id: role.id,
+    roleName: role.roleName,
+    roleDescription: role.roleDescription,
+    module: role.modules[0] ?? "—",
+    allowAssign,
+  };
+}
+
+const NEW_MODULAR_UNASSIGNED: ManageRolesAssignmentRow[] = [...MODULAR_ROLES_SC2_NEW, ...MODULAR_ROLES_SC1]
+  .slice(0, 6)
+  .map((role) => toManageRow(role, true));
 
 const BROWN_ASSIGNED: ManageRolesAssignmentRow[] = [
   {
@@ -30,10 +46,10 @@ const GENERIC_ASSIGNED: ManageRolesAssignmentRow[] = [
   },
   {
     id: "generic-assigned-2",
-    roleName: "Program Read Only Administrator",
+    roleName: "ClinEd Placement Administrator",
     roleDescription:
-      "This role is for program administrators who need read only access for all the functionalities that PRISM provides.",
-    module: "Curriculum Management",
+      "Full access to ClinEd placement workflows, including sites, placements, and related clinical education operations for the program.",
+    module: "ClinEd",
     assignedDateTime: "04/01/2026 09:15:03",
   },
 ];
@@ -42,28 +58,15 @@ const UNASSIGNED_ROLES: ManageRolesAssignmentRow[] = [
   {
     id: "unassigned-1",
     roleName: "Program Super Administrator",
-    roleDescription: "Full administrative access to program configuration, user management, and all module settings.",
+    roleDescription: "Legacy program-wide administrator across all modules. Existing assignments remain valid.",
     module: "Curriculum Management",
     allowAssign: false,
   },
+  ...NEW_MODULAR_UNASSIGNED,
   {
-    id: "unassigned-2",
-    roleName: "Clinical Coordinator",
-    roleDescription: "Manages clinical placements, site contracts, and student scheduling for assigned cohorts.",
-    module: "Placement Student",
-    allowAssign: true,
-  },
-  {
-    id: "unassigned-3",
-    roleName: "Compliance Administrator",
-    roleDescription: "Oversees compliance requirements, document review, and accreditation reporting workflows.",
-    module: "Compliance",
-    allowAssign: true,
-  },
-  {
-    id: "unassigned-4",
+    id: "unassigned-global",
     roleName: "Global",
-    roleDescription: "Institution-wide access across all programs and modules with read and write permissions.",
+    roleDescription: "Legacy institution-wide access across all modules. Existing assignments remain valid.",
     module: "Compliance",
     allowAssign: false,
   },
