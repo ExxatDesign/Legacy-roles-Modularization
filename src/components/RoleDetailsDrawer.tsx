@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { RoleNameWithTags } from "./RoleNameWithTags";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
 
 const PERMISSION_NAV = [
@@ -98,7 +99,13 @@ export function RoleDetailsDrawer({ row, onClose }: RoleDetailsDrawerProps) {
               </div>
               <div className="um-role-drawer__meta-item">
                 <span className="um-role-drawer__meta-label">Role name</span>
-                <span className="um-role-drawer__meta-value">{roleName}</span>
+                <span className="um-role-drawer__meta-value">
+                  <RoleNameWithTags
+                    roleName={roleName}
+                    showNewTag={row?.showNewTag}
+                    showLegacyTag={row ? !row.showNewTag : false}
+                  />
+                </span>
               </div>
               <div className="um-role-drawer__meta-item um-role-drawer__meta-item--wide">
                 <span className="um-role-drawer__meta-label">Role Description</span>

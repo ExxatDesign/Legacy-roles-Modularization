@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
+import { UserManagementSiteHeader } from "../components/UserManagementSiteHeader";
 import { ManageRolesDrawer } from "../components/ManageRolesDrawer";
 import { RoleModulesCell } from "../components/RoleModulesCell";
 import { ModularizationBanner } from "../components/ModularizationBanner";
@@ -20,81 +21,6 @@ const MAIN_TABS = [
   "Program 360",
   "Calendar",
 ] as const;
-
-function IconMenu() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
-    </svg>
-  );
-}
-
-function IconGrid() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <circle cx="5" cy="5" r="1.75" />
-      <circle cx="12" cy="5" r="1.75" />
-      <circle cx="19" cy="5" r="1.75" />
-      <circle cx="5" cy="12" r="1.75" />
-      <circle cx="12" cy="12" r="1.75" />
-      <circle cx="19" cy="12" r="1.75" />
-      <circle cx="5" cy="19" r="1.75" />
-      <circle cx="12" cy="19" r="1.75" />
-      <circle cx="19" cy="19" r="1.75" />
-    </svg>
-  );
-}
-
-function IconBell() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5-6.71V4a2 2 0 1 0-4 0v.29A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2z" />
-    </svg>
-  );
-}
-
-/** Document with check — legacy tasks icon */
-function IconTaskList() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2 5 5h-5V4zM8 13.5l1.41 1.41L12 12.33l4.59 4.58L18 15.5l-6-6-6 6z" />
-    </svg>
-  );
-}
-
-function IconChat() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M20 2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h2v3l3.5-3H20a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
-      <path d="M7 18.5 9.5 16H4V6h14v8H9l-2 4.5z" opacity="0.45" />
-    </svg>
-  );
-}
-
-function IconChevronDown() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M7 10l5 5 5-5H7z" />
-    </svg>
-  );
-}
-
-function IconMegaphone() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M18 11c.7 0 1.37-.1 2-.29V16l-8 4V4l8 4v3.71c-.63-.19-1.3-.29-2-.29zM4 9v6h4l5 5V4L8 9H4z" />
-    </svg>
-  );
-}
-
-function IconLeoMark() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-      <path d="M12 3c2 4 6 5 6 9s-4 5-6 9c-2-4-6-5-6-9s4-5 6-9z" />
-      <path d="M12 8v8M8 12h8" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 function IconSearchOutline() {
   return (
@@ -187,22 +113,6 @@ function IconEyeOutline() {
   );
 }
 
-function UtilityIconButton({
-  label,
-  className,
-  children,
-}: {
-  label: string;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <button type="button" aria-label={label} className={`um-icon-btn ${className ?? ""}`}>
-      {children}
-    </button>
-  );
-}
-
 function isEmptyLogin(value: string) {
   return value.trim().toLowerCase() === "no data found";
 }
@@ -215,52 +125,7 @@ export function UserManagementPage() {
 
   return (
     <div className="um-page">
-      <header className="um-site-header">
-        <div className="um-site-header__left">
-          <button type="button" aria-label="Open menu" className="um-icon-btn">
-            <IconMenu />
-          </button>
-          <h1 className="um-site-header__title">User Management</h1>
-        </div>
-
-        <div className="um-site-header__utilities">
-          <div className="um-site-header__icon-group">
-            <UtilityIconButton label="Apps">
-              <IconGrid />
-            </UtilityIconButton>
-            <div className="um-notify-wrap">
-              <UtilityIconButton label="Notifications">
-                <IconBell />
-              </UtilityIconButton>
-              <span className="um-notify-badge">New</span>
-            </div>
-            <UtilityIconButton label="Tasks">
-              <IconTaskList />
-            </UtilityIconButton>
-          </div>
-          <button type="button" className="um-btn-help" aria-label="Help">
-            ?
-          </button>
-          <button type="button" className="um-btn-chat">
-            <IconChat />
-            Chat
-          </button>
-          <UtilityIconButton label="Announcements" className="um-icon-btn--dark">
-            <IconMegaphone />
-          </UtilityIconButton>
-          <button type="button" className="um-btn-ask-leo">
-            <IconLeoMark />
-            Ask Leo
-          </button>
-          <button type="button" className="um-user-block" aria-label="Account menu">
-            <span className="um-user-block__text">
-              <span className="um-user-block__name">Alexia Bracken d</span>
-              <span className="um-user-block__org">Exxat Sales Golden Data (Nursing)</span>
-            </span>
-            <IconChevronDown />
-          </button>
-        </div>
-      </header>
+      <UserManagementSiteHeader />
 
       <div className="um-primary-tabs-rail">
         <nav className="um-primary-tabs" aria-label="Setup sections">
