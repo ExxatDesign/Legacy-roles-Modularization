@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { RoleModulesCell } from "./RoleModulesCell";
 import { RoleNameWithTags } from "./RoleNameWithTags";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
@@ -8,6 +9,7 @@ type RoleOverviewMetaCardProps = {
 };
 
 export function RoleOverviewMetaCard({ row, className }: RoleOverviewMetaCardProps) {
+  const aboutId = useId();
   const persona = row?.selectedPersona ?? "Program Level Admin";
   const roleName = row?.roleName ?? "";
   const roleType = row?.roleType ?? "Standard";
@@ -19,50 +21,71 @@ export function RoleOverviewMetaCard({ row, className }: RoleOverviewMetaCardPro
       : "This role is for program administrators who need read only access for all the functionalities that PRISM provides.");
 
   return (
-    <div className={`um-role-drawer__meta-card${className ? ` ${className}` : ""}`}>
-      <div className="um-role-drawer__meta">
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Role name</span>
-          <span className="um-role-drawer__meta-value um-role-drawer__meta-value--with-modules">
-            <RoleNameWithTags
-              roleName={roleName}
-              showNewTag={row?.showNewTag}
-              showLegacyTag={row ? !row.showNewTag : false}
-            />
-            <RoleModulesCell modules={row?.modules ?? []} />
+    <article
+      className={`um-fb-profile um-fb-profile--role${className ? ` ${className}` : ""}`}
+      aria-label={roleName ? `Role profile for ${roleName}` : "Role profile"}
+    >
+      <div className="um-fb-profile__header">
+        <div className="um-fb-profile__name-row">
+          <RoleNameWithTags
+            roleName={roleName}
+            showNewTag={row?.showNewTag}
+            showLegacyTag={row ? !row.showNewTag : false}
+          />
+        </div>
+        <div className="um-fb-profile__headline um-fb-profile__headline--modules">
+          <RoleModulesCell modules={row?.modules ?? []} />
+        </div>
+        <p className="um-fb-profile__headline">
+          {persona}
+          <span className="um-fb-profile__headline-sep" aria-hidden>
+            {" "}
+            ·{" "}
           </span>
-        </div>
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Selected Persona</span>
-          <span className="um-role-drawer__meta-value">{persona}</span>
-        </div>
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Role Type</span>
-          <span className="um-role-drawer__meta-value">
-            <span
-              className={`um-role-type-badge${
-                roleType === "Custom" ? " um-role-type-badge--custom" : " um-role-type-badge--standard"
-              }`}
-            >
-              {roleType}
-            </span>
+          <span
+            className={`um-role-type-badge${
+              roleType === "Custom" ? " um-role-type-badge--custom" : " um-role-type-badge--standard"
+            }`}
+          >
+            {roleType}
           </span>
-        </div>
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Total Users</span>
-          <span className="um-role-drawer__meta-value">
-            <span
-              className={`um-user-count um-user-count--display${totalUsers === 0 ? " um-user-count--zero" : ""}`}
-            >
-              {totalUsers}
-            </span>
-          </span>
-        </div>
-        <div className="um-role-drawer__meta-item um-role-drawer__meta-item--wide">
-          <span className="um-role-drawer__meta-label">Role Description</span>
-          <span className="um-role-drawer__meta-value">{roleDescription}</span>
-        </div>
+        </p>
       </div>
-    </div>
+
+      <section className="um-fb-profile__about" aria-labelledby={aboutId}>
+        <h4 id={aboutId} className="um-role-drawer__perm-heading">
+          About this role
+        </h4>
+        <ul className="um-fb-profile__facts">
+          <li className="um-fb-profile__fact">
+            <span className="um-fb-profile__fact-label">Selected persona</span>
+            <span className="um-fb-profile__fact-value">{persona}</span>
+          </li>
+          <li className="um-fb-profile__fact">
+            <span className="um-fb-profile__fact-label">Role type</span>
+            <span className="um-fb-profile__fact-value">
+              <span
+                className={`um-role-type-badge${
+                  roleType === "Custom" ? " um-role-type-badge--custom" : " um-role-type-badge--standard"
+                }`}
+              >
+                {roleType}
+              </span>
+            </span>
+          </li>
+          <li className="um-fb-profile__fact">
+            <span className="um-fb-profile__fact-label">Total users</span>
+            <span className="um-fb-profile__fact-value">
+              <span
+                className={`um-user-count um-user-count--display${totalUsers === 0 ? " um-user-count--zero" : ""}`}
+              >
+                {totalUsers}
+              </span>
+            </span>
+          </li>
+        </ul>
+        <p className="um-fb-profile__bio">{roleDescription}</p>
+      </section>
+    </article>
   );
 }

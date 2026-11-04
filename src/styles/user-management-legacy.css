@@ -1510,10 +1510,9 @@
   background: color-mix(in srgb, var(--prism-primary-darker) 88%, var(--prism-text-primary));
 }
 
-.um-manage-users-drawer__role-meta.um-role-drawer__meta-card {
+.um-manage-users-drawer__role-meta.um-fb-profile {
   flex-shrink: 0;
   margin-bottom: 0;
-  padding-bottom: 0.875rem;
 }
 
 .um-manage-users-drawer__role-meta + .um-manage-users-drawer__sub-tabs {
@@ -1679,6 +1678,136 @@ button.um-assign-user-dialog__backdrop {
 
 .um-user-profile-overview__grid {
   gap: 1rem 2.5rem;
+}
+
+/* Facebook-style profile (Manage Roles → Overview) */
+.um-fb-profile {
+  overflow: hidden;
+  border: 1px solid var(--prism-border);
+  border-radius: 0.5rem;
+  background: var(--prism-surface);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--prism-text-primary) 6%, transparent);
+}
+
+.um-fb-profile__header {
+  padding: 1rem 1.25rem 0.875rem;
+}
+
+.um-fb-profile__name {
+  margin: 0;
+  font-family: var(--prism-font-family);
+  font-size: 1.25rem;
+  font-weight: var(--prism-font-weight-700);
+  line-height: 1.25;
+  color: var(--prism-text-primary);
+}
+
+.um-fb-profile__headline {
+  margin: 0.375rem 0 0;
+  font-family: var(--prism-font-family);
+  font-size: 0.8125rem;
+  font-weight: var(--prism-font-weight-400);
+  line-height: 1.4;
+  color: var(--prism-text-secondary);
+}
+
+.um-fb-profile__headline-sep {
+  color: var(--prism-text-secondary);
+}
+
+.um-fb-profile__headline-roles {
+  color: var(--prism-text-secondary);
+}
+
+.um-fb-profile__headline .um-role-count {
+  margin-inline: 0.125rem 0.25rem;
+  vertical-align: baseline;
+}
+
+.um-fb-profile__about {
+  padding: 1rem 1.25rem 1.25rem;
+  border-top: 1px solid var(--prism-border);
+}
+
+.um-fb-profile__about-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--prism-font-family);
+  font-size: 1.0625rem;
+  font-weight: var(--prism-font-weight-700);
+  line-height: 1.25;
+  color: var(--prism-text-primary);
+}
+
+.um-fb-profile__facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 2.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.um-fb-profile__fact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 0;
+  font-family: var(--prism-font-family);
+}
+
+.um-fb-profile__fact-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--prism-text-primary);
+}
+
+.um-fb-profile__fact-value {
+  min-width: 0;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--prism-text-primary);
+  word-break: break-word;
+}
+
+.um-fb-profile__fact-value .um-datetime-cell {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.um-fb-profile__name-row .um-role-name-cell {
+  font-size: 1.125rem;
+  font-weight: var(--prism-font-weight-700);
+  line-height: 1.3;
+  color: var(--prism-text-primary);
+}
+
+.um-fb-profile__headline--modules {
+  margin-top: 0.375rem;
+}
+
+.um-fb-profile__headline--modules .um-role-modules {
+  justify-content: flex-start;
+}
+
+.um-fb-profile__headline .um-role-type-badge {
+  vertical-align: middle;
+}
+
+.um-fb-profile__bio {
+  margin: 0.875rem 0 0;
+  padding-top: 0.875rem;
+  border-top: 1px solid color-mix(in srgb, var(--prism-border) 65%, transparent);
+  font-family: var(--prism-font-family);
+  font-size: 0.8125rem;
+  font-weight: var(--prism-font-weight-400);
+  line-height: 1.5;
+  color: var(--prism-text-primary);
 }
 
 .um-assign-user-dialog__card {

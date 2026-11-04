@@ -1,7 +1,22 @@
+import { useId, type ReactNode } from "react";
 import type { UserManagementRow } from "../data/user-management-rows";
 
 function isEmptyLogin(value: string) {
   return value.trim().toLowerCase() === "no data found";
+}
+
+type ProfileFactProps = {
+  label: string;
+  children: ReactNode;
+};
+
+function ProfileFact({ label, children }: ProfileFactProps) {
+  return (
+    <li className="um-fb-profile__fact">
+      <span className="um-fb-profile__fact-label">{label}</span>
+      <span className="um-fb-profile__fact-value">{children}</span>
+    </li>
+  );
 }
 
 type UserProfileOverviewProps = {
@@ -9,46 +24,42 @@ type UserProfileOverviewProps = {
 };
 
 export function UserProfileOverview({ user }: UserProfileOverviewProps) {
+  const aboutId = useId();
+
   if (!user) {
     return null;
   }
 
   return (
-    <div className="um-role-drawer__meta-card um-user-profile-overview">
-      <div className="um-role-drawer__meta um-user-profile-overview__grid">
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Name</span>
-          <span className="um-role-drawer__meta-value">{user.name}</span>
-        </div>
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">User Name</span>
-          <span className="um-role-drawer__meta-value">{user.userName}</span>
-        </div>
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Email ID</span>
-          <span className="um-role-drawer__meta-value">{user.emailId}</span>
-        </div>
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Associated Roles</span>
-          <span className="um-role-drawer__meta-value">
-            <span className="um-role-count">{user.associatedRoles}</span>
+    <article className="um-fb-profile" aria-label={`Profile for ${user.name}`}>
+      <div className="um-fb-profile__header">
+        <h4 className="um-fb-profile__name">{user.name}</h4>
+        <p className="um-fb-profile__headline">
+          {user.moduleAccess}
+          <span className="um-fb-profile__headline-sep" aria-hidden>
+            {" "}
+            ·{" "}
           </span>
-        </div>
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Module Access</span>
-          <span className="um-role-drawer__meta-value">{user.moduleAccess}</span>
-        </div>
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Last Login Time</span>
-          <span
-            className={`um-role-drawer__meta-value${isEmptyLogin(user.lastLoginTime) ? " um-cell-empty" : ""}`}
-          >
-            {user.lastLoginTime}
+          <span className="um-fb-profile__headline-roles">
+            <span className="um-role-count">{user.associatedRoles}</span> associated roles
           </span>
-        </div>
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Created Date And Time</span>
-          <span className="um-role-drawer__meta-value">
+        </p>
+      </div>
+
+      <section className="um-fb-profile__about" aria-labelledby={aboutId}>
+        <h5 id={aboutId} className="um-fb-profile__about-title">
+          About
+        </h5>
+        <ul className="um-fb-profile__facts">
+          <ProfileFact label="User name">{user.userName}</ProfileFact>
+          <ProfileFact label="Email">{user.emailId}</ProfileFact>
+          <ProfileFact label="Module access">{user.moduleAccess}</ProfileFact>
+          <ProfileFact label="Last login">
+            <span className={isEmptyLogin(user.lastLoginTime) ? "um-cell-empty" : undefined}>
+              {user.lastLoginTime}
+            </span>
+          </ProfileFact>
+          <ProfileFact label="Created">
             <span className="um-datetime-cell">
               <span>{user.createdDateTime}</span>
               {user.showCreatedInfoIcon ? (
@@ -61,13 +72,10 @@ export function UserProfileOverview({ user }: UserProfileOverviewProps) {
                 </span>
               ) : null}
             </span>
-          </span>
-        </div>
-        <div className="um-role-drawer__meta-item">
-          <span className="um-role-drawer__meta-label">Last Updated Date And Time</span>
-          <span className="um-role-drawer__meta-value">{user.lastUpdatedDateTime}</span>
-        </div>
-      </div>
-    </div>
+          </ProfileFact>
+          <ProfileFact label="Last updated">{user.lastUpdatedDateTime}</ProfileFact>
+        </ul>
+      </section>
+    </article>
   );
 }
