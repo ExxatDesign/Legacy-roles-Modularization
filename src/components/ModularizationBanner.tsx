@@ -1,28 +1,43 @@
 import { useCallback, useState } from "react";
 import {
-  MODULARIZATION_PAGE_BANNER_BODY_ALL_ROLES_AFTER,
-  MODULARIZATION_PAGE_BANNER_BODY_BEFORE,
-  MODULARIZATION_PAGE_BANNER_BODY_REASSURANCE,
-  MODULARIZATION_PAGE_BANNER_EYEBROW,
-  MODULARIZATION_PAGE_BANNER_LEGACY_BODY,
-  MODULARIZATION_PAGE_BANNER_LEGACY_EYEBROW,
   MODULARIZATION_PAGE_BANNER_LEGACY_TITLE,
   MODULARIZATION_PAGE_BANNER_TITLE,
 } from "../lib/legacy-role-modularization";
 import { ModularizationBannerIllustration } from "./ModularizationBannerIllustration";
 
-function IconBullhorn() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 640 640" fill="currentColor" aria-hidden>
-      <path d="M525.2 82.9C536.7 88 544 99.4 544 112L544 528C544 540.6 536.7 552 525.2 557.1C513.7 562.2 500.4 560.3 490.9 552L444.3 511.3C400.7 473.2 345.6 451 287.9 448.3L287.9 544C287.9 561.7 273.6 576 255.9 576L223.9 576C206.2 576 191.9 561.7 191.9 544L191.9 448C121.3 448 64 390.7 64 320C64 249.3 121.3 192 192 192L276.5 192C338.3 191.8 397.9 169.3 444.4 128.7L491 88C500.4 79.7 513.9 77.8 525.3 82.9zM288 384L288 384.2C358.3 386.9 425.8 412.7 480 457.6L480 182.3C425.8 227.2 358.3 253 288 255.7L288 384z" />
-    </svg>
-  );
-}
-
 function IconClose() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
       <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconModules() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+
+function IconLock() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <path d="M8 11V8.2a4 4 0 0 1 8 0V11" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconShield() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
+      <path d="M12 3.5l7 2.5v6.2c0 4.2-2.8 6.8-7 8.3-4.2-1.5-7-4.1-7-8.3V6l7-2.5z" strokeLinejoin="round" />
+      <path d="M8.8 12.1l2.1 2.1 4.3-4.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -36,62 +51,102 @@ export function ModularizationBanner({ legacyFilterActive = false }: Modularizat
   const [dismissed, setDismissed] = useState(false);
 
   const onDismiss = useCallback(() => {
+    const next = document.querySelector<HTMLElement>(
+      ".um-sub-tabs [aria-selected='true'], .um-toolbar-search input",
+    );
     setDismissed(true);
+    queueMicrotask(() => next?.focus());
   }, []);
 
   if (dismissed) {
     return null;
   }
 
+  const title = legacyFilterActive ? MODULARIZATION_PAGE_BANNER_LEGACY_TITLE : MODULARIZATION_PAGE_BANNER_TITLE;
+
   return (
-    <div
-      className="um-modularization-banner"
-      role="region"
-      aria-labelledby="um-modularization-banner-title"
-      aria-describedby="um-modularization-banner-body"
-    >
+    <aside className="um-modularization-banner" aria-labelledby="um-modularization-banner-title">
       <div className="um-modularization-banner__card">
+        <div className="um-modularization-banner__copy">
+          <h2 id="um-modularization-banner-title" className="um-modularization-banner__title">
+            {title}
+          </h2>
+          <ul className="um-modularization-banner__points">
+            {legacyFilterActive ? (
+              <>
+                <li className="um-modularization-banner__point">
+                  <span className="um-modularization-banner__slot">
+                    <span className="um-modularization-banner__mark um-modularization-banner__mark--modules">
+                      <IconModules />
+                    </span>
+                  </span>
+                  <span>
+                    Use the new <strong>module specific standard roles</strong>.
+                  </span>
+                </li>
+                <li className="um-modularization-banner__point">
+                  <span className="um-modularization-banner__slot">
+                    <span className="um-modularization-banner__mark um-modularization-banner__mark--lock">
+                      <IconLock />
+                    </span>
+                  </span>
+                  <span>New users can&apos;t be assigned to legacy roles.</span>
+                </li>
+                <li className="um-modularization-banner__point">
+                  <span className="um-modularization-banner__slot">
+                    <span className="um-modularization-banner__mark um-modularization-banner__mark--shield">
+                      <IconShield />
+                    </span>
+                  </span>
+                  <span>
+                    <strong>Don&apos;t worry:</strong> current access stays the same.
+                  </span>
+                </li>
+              </>
+            ) : (
+              <>
+                <li className="um-modularization-banner__point">
+                  <span className="um-modularization-banner__slot">
+                    <span className="um-role-new-tag">New</span>
+                  </span>
+                  <span>
+                    Roles tagged <strong>New</strong> are the newly available roles.
+                  </span>
+                </li>
+                <li className="um-modularization-banner__point">
+                  <span className="um-modularization-banner__slot">
+                    <span className="um-modularization-banner__mark um-modularization-banner__mark--modules">
+                      <IconModules />
+                    </span>
+                  </span>
+                  <span>
+                    You can now assign <strong>module specific</strong> roles.
+                  </span>
+                </li>
+                <li className="um-modularization-banner__point">
+                  <span className="um-modularization-banner__slot">
+                    <span className="um-modularization-banner__mark um-modularization-banner__mark--shield">
+                      <IconShield />
+                    </span>
+                  </span>
+                  <span>
+                    You can now have <strong>greater access control</strong> over your module specific data.
+                  </span>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
+        <ModularizationBannerIllustration variant={legacyFilterActive ? "legacy" : "new"} />
         <button
           type="button"
           className="um-modularization-banner__close"
-          aria-label="Dismiss announcement"
+          aria-label={`Dismiss announcement: ${title}`}
           onClick={onDismiss}
         >
           <IconClose />
         </button>
-        <div className="um-modularization-banner__lead">
-          <div className="um-modularization-banner__icon-wrap" aria-hidden>
-            <IconBullhorn />
-          </div>
-          <div className="um-modularization-banner__content">
-            <div className="um-modularization-banner__headline">
-              <p className="um-modularization-banner__eyebrow">
-                {legacyFilterActive ? MODULARIZATION_PAGE_BANNER_LEGACY_EYEBROW : MODULARIZATION_PAGE_BANNER_EYEBROW}
-              </p>
-              <h2 id="um-modularization-banner-title" className="um-modularization-banner__title">
-                {legacyFilterActive ? MODULARIZATION_PAGE_BANNER_LEGACY_TITLE : MODULARIZATION_PAGE_BANNER_TITLE}
-              </h2>
-            </div>
-            <p id="um-modularization-banner-body" className="um-modularization-banner__body">
-              {legacyFilterActive ? (
-                <>
-                  {MODULARIZATION_PAGE_BANNER_LEGACY_BODY}{" "}
-                  <span className="um-modularization-banner__reassurance">
-                    {MODULARIZATION_PAGE_BANNER_BODY_REASSURANCE}
-                  </span>
-                </>
-              ) : (
-                <>
-                  {MODULARIZATION_PAGE_BANNER_BODY_BEFORE}{" "}
-                  <span className="um-role-new-tag um-modularization-banner__inline-tag">New</span>{" "}
-                  {MODULARIZATION_PAGE_BANNER_BODY_ALL_ROLES_AFTER}
-                </>
-              )}
-            </p>
-          </div>
-        </div>
-        <ModularizationBannerIllustration />
       </div>
-    </div>
+    </aside>
   );
 }

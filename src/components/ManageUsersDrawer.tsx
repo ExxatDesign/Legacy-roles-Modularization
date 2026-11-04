@@ -28,23 +28,6 @@ function IconInfo() {
   );
 }
 
-function IconSearchOutline() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      aria-hidden
-    >
-      <circle cx="10.5" cy="10.5" r="6.75" />
-      <path d="M15.5 15.5L20 20" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 type ManageUsersDrawerProps = {
   row: UserManagementRoleRow | null;
   onClose: () => void;
@@ -98,17 +81,21 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
     };
   }, [assignDialogOpen, open, onClose, pendingUnassign]);
 
+  const assignedPeople = useMemo(
+    () => MANAGE_USERS_ASSIGNED_ROWS.filter((user) => !unassignedIds.includes(user.id)),
+    [unassignedIds],
+  );
+
   const assignedRows = useMemo(() => {
     const query = userSearchQuery.trim().toLowerCase();
-    const visible = MANAGE_USERS_ASSIGNED_ROWS.filter((user) => !unassignedIds.includes(user.id));
     if (query.length === 0) {
-      return visible;
+      return assignedPeople;
     }
-    return visible.filter(
+    return assignedPeople.filter(
       (user) =>
         user.name.toLowerCase().includes(query) || user.email.toLowerCase().includes(query),
     );
-  }, [unassignedIds, userSearchQuery]);
+  }, [assignedPeople, userSearchQuery]);
 
   const handleUnassignClick = (user: ManageUsersAssignedRow) => {
     if (isNewModularRole) {
@@ -203,6 +190,7 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
               onClick={() => setManageView("assigned")}
             >
               Assigned users
+              <span className="um-tab-count">{assignedPeople.length}</span>
             </button>
           </div>
 
@@ -214,28 +202,24 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
             <>
               <div className="um-manage-users-drawer__panel">
               <div className="um-manage-users-drawer__toolbar">
-                <div className="um-search-bar um-search-bar--drawer">
-                  <div className="um-search-bar__lead">
-                    <IconSearchOutline />
-                    <span className="um-search-bar__lead-text">Search</span>
-                  </div>
-                  <div className="um-search-bar__divider" role="separator" aria-orientation="vertical" />
+                <label className="um-search-field">
+                  <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
                   <input
                     type="search"
-                    className="um-search-bar__input"
+                    placeholder="Search"
                     aria-label="Search users by name or email"
                     value={userSearchQuery}
                     onChange={(event) => setUserSearchQuery(event.target.value)}
                   />
-                </div>
+                </label>
               </div>
               <div className="um-manage-users-drawer__table-wrap">
-                <table className="um-table um-table--manage-users">
+                <table className="um-table um-table--manage-users" aria-label="Assigned users">
                   <thead>
                     <tr>
-                      <th className="um-col-mu-name">Name</th>
-                      <th className="um-col-mu-email">Email</th>
-                      <th className="um-col-mu-action">Action</th>
+                      <th scope="col" className="um-col-mu-name">Name</th>
+                      <th scope="col" className="um-col-mu-email">Email</th>
+                      <th scope="col" className="um-col-mu-action">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -261,10 +245,9 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
         <AssignUserDialog
           open={assignDialogOpen}
           users={MANAGE_USERS_UNASSIGNED_ROWS}
-          roleName={row?.roleName}
-          modules={row?.modules}
-          showNewTag={row?.showNewTag}
+          role={row}
           onClose={() => setAssignDialogOpen(false)}
+          onViewDetails={() => setAssignDialogOpen(false)}
         />
 
         <LegacyUnassignConfirmDialog

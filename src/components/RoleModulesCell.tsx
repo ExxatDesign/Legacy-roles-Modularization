@@ -1,12 +1,8 @@
-import { getModuleTagToneClass } from "../lib/module-tag-tone";
+import { ModuleTag } from "./ModuleTag";
 
 type RoleModulesCellProps = {
   modules: string[];
 };
-
-function ModuleTag({ name }: { name: string }) {
-  return <span className={`um-module-tag ${getModuleTagToneClass(name)}`}>{name}</span>;
-}
 
 export function RoleModulesCell({ modules }: RoleModulesCellProps) {
   if (modules.length === 0) {

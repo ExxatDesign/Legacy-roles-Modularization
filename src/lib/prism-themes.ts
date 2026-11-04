@@ -30,6 +30,13 @@ export function parsePrismColorTheme(raw: string | null): PrismColorTheme {
   return "theme-blue-light";
 }
 
+export function themeWithScheme(theme: PrismColorTheme, scheme: "light" | "dark"): PrismColorTheme {
+  const family = theme.replace(/-(light|dark)$/, "");
+  const next = `${family}-${scheme}` as PrismColorTheme;
+  if (VALID.has(next)) return next;
+  return scheme === "dark" ? "theme-blue-dark" : "theme-blue-light";
+}
+
 export function applyPrismColorTheme(theme: PrismColorTheme): void {
   const root = document.documentElement;
   for (const opt of PRISM_COLOR_THEME_OPTIONS) {

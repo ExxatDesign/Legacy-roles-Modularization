@@ -1,4 +1,12 @@
-import type { ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import {
+  applyPrismColorTheme,
+  parsePrismColorTheme,
+  PRISM_COLOR_THEME_OPTIONS,
+  PRISM_COLOR_THEME_STORAGE_KEY,
+  themeWithScheme,
+  type PrismColorTheme,
+} from "../lib/prism-themes";
 
 function IconMenu() {
   return (
@@ -99,6 +107,49 @@ function UtilityIconButton({
 }
 
 export function UserManagementSiteHeader() {
+  const menuId = useId();
+  const accountRef = useRef<HTMLDivElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<PrismColorTheme>("theme-blue-light");
+  const scheme = PRISM_COLOR_THEME_OPTIONS.find((option) => option.id === theme)?.scheme ?? "light";
+
+  useEffect(() => {
+    const stored = parsePrismColorTheme(localStorage.getItem(PRISM_COLOR_THEME_STORAGE_KEY));
+    setTheme(stored);
+    applyPrismColorTheme(stored);
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const selected = accountRef.current?.querySelector<HTMLButtonElement>("[aria-checked='true']");
+    selected?.focus();
+    function onPointerDown(event: PointerEvent) {
+      if (!accountRef.current?.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        accountRef.current?.querySelector<HTMLButtonElement>(".um-user-block")?.focus();
+      }
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuOpen]);
+
+  function chooseScheme(nextScheme: "light" | "dark") {
+    const next = themeWithScheme(theme, nextScheme);
+    setTheme(next);
+    applyPrismColorTheme(next);
+    setMenuOpen(false);
+    accountRef.current?.querySelector<HTMLButtonElement>(".um-user-block")?.focus();
+  }
+
   return (
     <header className="um-site-header">
       <div className="um-site-header__left">
@@ -142,16 +193,53 @@ export function UserManagementSiteHeader() {
           <span>Ask Leo</span>
         </button>
 
-        <button type="button" className="um-user-block" aria-label="Account menu">
-          <span className="um-user-block__text">
-            <span className="um-user-block__name">Alexia Bracken d</span>
-            <span className="um-user-block__sep" aria-hidden>
-              |
+        <div className="um-account" ref={accountRef}>
+          <button
+            type="button"
+            className="um-user-block"
+            aria-label="Account menu"
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            aria-controls={menuId}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span className="um-user-block__text">
+              <span className="um-user-block__name">Alexia Bracken d</span>
+              <span className="um-user-block__sep" aria-hidden>
+                |
+              </span>
+              <span className="um-user-block__org">Exxat Sales Golden Data (Nursing)</span>
             </span>
-            <span className="um-user-block__org">Exxat Sales Golden Data (Nursing)</span>
-          </span>
-          <IconChevronDown />
-        </button>
+            <IconChevronDown />
+          </button>
+          {menuOpen ? (
+            <div className="um-account-menu" id={menuId} role="menu" aria-label="Account">
+              <p className="um-account-menu__label" id={`${menuId}-appearance`}>
+                Appearance
+              </p>
+              <button
+                type="button"
+                role="menuitemradio"
+                className="um-account-menu__item"
+                aria-checked={scheme === "light"}
+                onClick={() => chooseScheme("light")}
+              >
+                <i className="fa-solid fa-sun" aria-hidden="true" />
+                Light
+              </button>
+              <button
+                type="button"
+                role="menuitemradio"
+                className="um-account-menu__item"
+                aria-checked={scheme === "dark"}
+                onClick={() => chooseScheme("dark")}
+              >
+                <i className="fa-solid fa-moon" aria-hidden="true" />
+                Dark
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
     </header>
   );

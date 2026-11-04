@@ -8,7 +8,7 @@ const LEGACY_CROSS_MODULE_ROLES: import("./user-management-role-types").UserMana
     id: "standard-faculty",
     roleName: "Standard Faculty Role",
     roleType: "Standard",
-    modules: ["ClinEd", "Curriculum Management", "Placement Student"],
+    modules: ["ClinEd", "Curriculum Management"],
     totalUsers: 62,
     roleDescription:
       "Legacy cross-module faculty access spanning multiple products. Existing assignments remain valid.",
@@ -18,7 +18,7 @@ const LEGACY_CROSS_MODULE_ROLES: import("./user-management-role-types").UserMana
     id: "program-super-admin",
     roleName: "Program Super Administrator",
     roleType: "Standard",
-    modules: ["Curriculum Management", "ClinEd", "Compliance", "Placement Student"],
+    modules: ["Curriculum Management", "ClinEd", "Compliance"],
     totalUsers: 4,
     roleDescription:
       "Legacy program-wide administrator across all modules. Existing assignments remain valid.",
@@ -29,7 +29,7 @@ const LEGACY_CROSS_MODULE_ROLES: import("./user-management-role-types").UserMana
     id: "global",
     roleName: "Global",
     roleType: "Standard",
-    modules: ["ClinEd", "Curriculum Management", "Compliance", "Placement Student"],
+    modules: ["ClinEd", "Curriculum Management", "Compliance"],
     totalUsers: 3,
     roleDescription: "Legacy institution-wide access across all modules. Existing assignments remain valid.",
   },

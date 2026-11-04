@@ -1,6 +1,6 @@
 import type { UserManagementRoleRow } from "./user-management-role-types";
 
-/** SC1 — modular roles (Curr. Management, Compliance, Exxat One, Foundation, Tenant). */
+/** SC1 — modular roles (Curriculum, Compliance, Sites and Contracts, Foundation). */
 export const MODULAR_ROLES_SC1: UserManagementRoleRow[] = [
   {
     id: "sc1-curr-read-only",
@@ -46,13 +46,13 @@ export const MODULAR_ROLES_SC1: UserManagementRoleRow[] = [
     selectedPersona: "Program Level Admin",
   },
   {
-    id: "sc1-exxat-one",
-    roleName: "Exxat One Access",
+    id: "sc1-sites-contracts",
+    roleName: "Sites and Contracts Access",
     roleType: "Standard",
-    modules: ["Exxat One"],
+    modules: ["Sites and Contracts"],
     showNewTag: true,
     totalUsers: 0,
-    roleDescription: "Access to Exxat One capabilities scoped to the program.",
+    roleDescription: "Access to site and contract records scoped to the program.",
     selectedPersona: "Program Level Admin",
   },
   {

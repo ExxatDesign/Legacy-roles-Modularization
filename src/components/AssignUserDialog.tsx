@@ -1,14 +1,17 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ManageUsersAssignedRow } from "../data/manage-users-assigned-rows";
-import { RoleIdCard } from "./RoleIdCard";
+import type { UserManagementRoleRow } from "../data/user-management-role-rows";
+import { RoleModulesCell } from "./RoleModulesCell";
+import { RoleNameWithTags } from "./RoleNameWithTags";
+
+type AssignPhase = "edit" | "error" | "success";
 
 type AssignUserDialogProps = {
   open: boolean;
   users: ManageUsersAssignedRow[];
-  roleName?: string;
-  modules?: string[];
-  showNewTag?: boolean;
+  role?: UserManagementRoleRow | null;
   onClose: () => void;
+  onViewDetails?: () => void;
   onAssign?: (users: ManageUsersAssignedRow[]) => void;
 };
 
@@ -23,10 +26,9 @@ function IconChevronDown() {
 export function AssignUserDialog({
   open,
   users,
-  roleName = "",
-  modules = [],
-  showNewTag,
+  role = null,
   onClose,
+  onViewDetails,
   onAssign,
 }: AssignUserDialogProps) {
   const labelId = useId();
@@ -38,14 +40,30 @@ export function AssignUserDialog({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [query, setQuery] = useState("");
   const [listOpen, setListOpen] = useState(false);
+  const [phase, setPhase] = useState<AssignPhase>("edit");
+  const statusRef = useRef<HTMLParagraphElement>(null);
+
+  const roleName = role?.roleName ?? "";
+  const persona = role?.selectedPersona ?? "Program Level Admin";
+  const description =
+    role?.manageUsersDescription ??
+    (role?.roleDescription && role.roleDescription !== "-"
+      ? role.roleDescription
+      : "This role is for program administrators who need read only access for all the functionalities that PRISM provides.");
 
   useEffect(() => {
     if (open) {
       setSelectedIds([]);
       setQuery("");
       setListOpen(false);
+      setPhase("edit");
     }
   }, [open]);
+
+  useEffect(() => {
+    if (phase === "edit") return;
+    statusRef.current?.focus();
+  }, [phase]);
 
   useEffect(() => {
     if (!listOpen) {
@@ -95,11 +113,16 @@ export function AssignUserDialog({
   };
 
   const handleAssign = () => {
-    if (selectedUsers.length === 0) {
+    if (selectedUsers.length === 0 || phase === "success") {
+      return;
+    }
+    setListOpen(false);
+    if (phase === "edit") {
+      setPhase("error");
       return;
     }
     onAssign?.(selectedUsers);
-    onClose();
+    setPhase("success");
   };
 
   return (
@@ -114,7 +137,60 @@ export function AssignUserDialog({
         <h3 id={labelId} className="um-assign-user-dialog__title">
           Assign users to role
         </h3>
-        {roleName ? <RoleIdCard roleName={roleName} modules={modules} showNewTag={showNewTag} /> : null}
+        {role ? (
+          <section className="um-assign-role-brief" aria-label={`Details for ${roleName}`}>
+            <div className="um-assign-role-brief__title">
+              <RoleNameWithTags
+                roleName={roleName}
+                showNewTag={role.showNewTag}
+                showLegacyTag={!role.showNewTag}
+              />
+              <span
+                className={`um-role-type-badge${
+                  role.roleType === "Custom" ? " um-role-type-badge--custom" : " um-role-type-badge--standard"
+                }`}
+              >
+                {role.roleType}
+              </span>
+            </div>
+            <dl className="um-assign-role-brief__facts">
+              {role.modules.length > 0 ? (
+                <div>
+                  <dt>Module</dt>
+                  <dd>
+                    <RoleModulesCell modules={role.modules} />
+                  </dd>
+                </div>
+              ) : null}
+              <div>
+                <dt>Persona</dt>
+                <dd>{persona}</dd>
+              </div>
+              <div>
+                <dt>Assigned users</dt>
+                <dd>{role.totalUsers}</dd>
+              </div>
+            </dl>
+            <p className="um-assign-role-brief__summary">{description}</p>
+            {onViewDetails ? (
+              <button type="button" className="um-assign-role-brief__details" onClick={onViewDetails}>
+                View details
+              </button>
+            ) : null}
+          </section>
+        ) : null}
+        {phase !== "edit" ? (
+          <p
+            ref={statusRef}
+            tabIndex={-1}
+            className={`um-assign-user-dialog__status um-assign-user-dialog__status--${phase}`}
+            role={phase === "error" ? "alert" : "status"}
+          >
+            {phase === "error"
+              ? "Couldn't assign these users. Try again."
+              : `${selectedUsers.length} ${selectedUsers.length === 1 ? "user" : "users"} assigned to ${roleName}.`}
+          </p>
+        ) : null}
         <div className="um-assign-user-dialog__field">
           <span className="um-assign-user-dialog__label" id={`${comboboxId}-label`}>
             Users
@@ -217,17 +293,25 @@ export function AssignUserDialog({
           </div>
         </div>
         <div className="um-assign-user-dialog__actions">
-          <button type="button" className="um-assign-user-dialog__btn um-assign-user-dialog__btn--secondary" onClick={onClose}>
-            Cancel
-          </button>
-          <button
-            type="button"
-            className="um-assign-user-dialog__btn um-assign-user-dialog__btn--primary"
-            disabled={selectedUsers.length === 0}
-            onClick={handleAssign}
-          >
-            Assign
-          </button>
+          {phase === "success" ? (
+            <button type="button" className="um-assign-user-dialog__btn um-assign-user-dialog__btn--primary" onClick={onClose}>
+              Done
+            </button>
+          ) : (
+            <>
+              <button type="button" className="um-assign-user-dialog__btn um-assign-user-dialog__btn--secondary" onClick={onClose}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="um-assign-user-dialog__btn um-assign-user-dialog__btn--primary"
+                disabled={selectedUsers.length === 0}
+                onClick={handleAssign}
+              >
+                {phase === "error" ? "Try again" : "Assign"}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

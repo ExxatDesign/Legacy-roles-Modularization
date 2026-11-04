@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ManageRolesAssignmentRow } from "../data/manage-roles-rows";
-import { getModuleTagToneClass } from "../lib/module-tag-tone";
+import { ModuleTag } from "./ModuleTag";
 import { AssignRoleOptionInfo } from "./AssignRoleOptionInfo";
 
 type AssignRolesDialogProps = {
@@ -232,9 +232,7 @@ export function AssignRolesDialog({ open, roles, onClose, onAssign }: AssignRole
                               <span className="um-assign-roles-option__meta">
                                 {role.showNewTag ? <span className="um-role-new-tag">New</span> : null}
                                 {role.showLegacyTag ? <span className="um-role-legacy-tag">Legacy</span> : null}
-                                <span className={`um-module-tag ${getModuleTagToneClass(role.module)}`}>
-                                  {role.module}
-                                </span>
+                                <ModuleTag name={role.module} />
                               </span>
                             </span>
                             <AssignRoleOptionInfo description={role.roleDescription} />

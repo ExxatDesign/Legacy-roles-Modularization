@@ -22,23 +22,6 @@ function IconClose() {
   );
 }
 
-function IconSearchOutline() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      aria-hidden
-    >
-      <circle cx="10.5" cy="10.5" r="6.75" />
-      <path d="M15.5 15.5L20 20" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 type ManageRolesDrawerProps = {
   user: UserManagementRow | null;
   onClose: () => void;
@@ -177,31 +160,27 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
             </h3>
             <div className="um-manage-users-drawer__panel">
               <div className="um-manage-users-drawer__toolbar">
-                <div className="um-search-bar um-search-bar--drawer um-search-bar--by-role">
-                  <div className="um-search-bar__lead">
-                    <IconSearchOutline />
-                    <span className="um-search-bar__lead-text">Search by role name and description</span>
-                  </div>
-                  <div className="um-search-bar__divider" role="separator" aria-orientation="vertical" />
+                <label className="um-search-field">
+                  <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
                   <input
                     type="search"
-                    className="um-search-bar__input"
+                    placeholder="Search"
                     aria-label="Search by role name and description"
                     value={roleSearchQuery}
                     onChange={(event) => setRoleSearchQuery(event.target.value)}
                   />
-                </div>
+                </label>
               </div>
 
               <div className="um-manage-users-drawer__table-wrap">
-                <table className="um-table um-table--manage-roles">
+                <table className="um-table um-table--manage-roles" aria-label="Assigned roles">
                   <thead>
                     <tr>
-                      <th className="um-col-mr-name">Role Name</th>
-                      <th className="um-col-mr-desc">Role Description</th>
-                      <th className="um-col-mr-module">Module(s)</th>
-                      <th className="um-col-mr-datetime">Assigned Date and Time</th>
-                      <th className="um-col-mr-action">Action</th>
+                      <th scope="col" className="um-col-mr-name">Role Name</th>
+                      <th scope="col" className="um-col-mr-desc">Role Description</th>
+                      <th scope="col" className="um-col-mr-module">Module(s)</th>
+                      <th scope="col" className="um-col-mr-datetime">Assigned Date and Time</th>
+                      <th scope="col" className="um-col-mr-action">Action</th>
                     </tr>
                   </thead>
                   <tbody>
