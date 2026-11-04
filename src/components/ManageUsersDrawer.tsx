@@ -1,21 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
 import {
   MANAGE_USERS_ASSIGNED_ROWS,
   MANAGE_USERS_UNASSIGNED_ROWS,
-  MANAGE_USERS_UNASSIGNED_ROWS_SC2,
+  type ManageUsersAssignedRow,
 } from "../data/manage-users-assigned-rows";
-import {
-  LegacyAssignDeprecationAlert,
-  LegacyAssignDeprecationCopy,
-} from "./legacy-assign-deprecation";
+import { AssignUserDialog } from "./AssignUserDialog";
+import { LegacyUnassignConfirmDialog } from "./LegacyUnassignConfirmDialog";
+import { RoleOverviewMetaCard } from "./RoleOverviewMetaCard";
+import { RolePermissionsOverview } from "./RolePermissionsOverview";
 
-type AssignmentView = "assigned" | "unassigned";
+type ManageView = "overview" | "assigned";
 
 function IconClose() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
       <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconInfo() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
     </svg>
   );
 }
@@ -44,15 +52,29 @@ type ManageUsersDrawerProps = {
 
 export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
   const open = row !== null;
-  const [assignmentView, setAssignmentView] = useState<AssignmentView>("assigned");
-  const [deprecationAlertOpen, setDeprecationAlertOpen] = useState(false);
+  const isNewModularRole = row?.showNewTag === true;
+
+  const [manageView, setManageView] = useState<ManageView>("overview");
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [pendingUnassign, setPendingUnassign] = useState<ManageUsersAssignedRow | null>(null);
+  const [unassignedIds, setUnassignedIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (!open) {
       return;
     }
-    setAssignmentView("assigned");
-    setDeprecationAlertOpen(false);
+    setManageView("overview");
+    setAssignDialogOpen(false);
+    setUserSearchQuery("");
+    setPendingUnassign(null);
+    setUnassignedIds([]);
+  }, [open, row?.id]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -60,13 +82,13 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
       if (event.key !== "Escape") {
         return;
       }
-      setDeprecationAlertOpen((visible) => {
-        if (visible) {
-          return false;
+      if (assignDialogOpen || pendingUnassign) {
+        if (pendingUnassign) {
+          setPendingUnassign(null);
         }
-        onClose();
-        return false;
-      });
+        return;
+      }
+      onClose();
     };
     window.addEventListener("keydown", onKeyDown);
 
@@ -74,32 +96,50 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, onClose]);
+  }, [assignDialogOpen, open, onClose, pendingUnassign]);
 
-  const roleName = row?.roleName ?? "";
-  const roleDescription =
-    row?.manageUsersDescription ??
-    (row?.roleDescription && row.roleDescription !== "-"
-      ? row.roleDescription
-      : "This role would grant faculty access to the user.");
+  const assignedRows = useMemo(() => {
+    const query = userSearchQuery.trim().toLowerCase();
+    const visible = MANAGE_USERS_ASSIGNED_ROWS.filter((user) => !unassignedIds.includes(user.id));
+    if (query.length === 0) {
+      return visible;
+    }
+    return visible.filter(
+      (user) =>
+        user.name.toLowerCase().includes(query) || user.email.toLowerCase().includes(query),
+    );
+  }, [unassignedIds, userSearchQuery]);
 
-  const isUnassignedView = assignmentView === "unassigned";
-  const showDeprecationEmpty =
-    isUnassignedView && !row?.showNewTag && row?.unassignedTableVariant !== "sc2";
+  const handleUnassignClick = (user: ManageUsersAssignedRow) => {
+    if (isNewModularRole) {
+      setUnassignedIds((current) => [...current, user.id]);
+      return;
+    }
+    setPendingUnassign(user);
+  };
 
-  const unassignedRows =
-    row?.unassignedTableVariant === "sc2"
-      ? MANAGE_USERS_UNASSIGNED_ROWS_SC2
-      : MANAGE_USERS_UNASSIGNED_ROWS;
-  const panelRows = isUnassignedView ? unassignedRows : MANAGE_USERS_ASSIGNED_ROWS;
-  const legacyAssignBlocked = isUnassignedView && !row?.showNewTag;
+  const confirmLegacyUnassign = () => {
+    if (pendingUnassign) {
+      setUnassignedIds((current) => [...current, pendingUnassign.id]);
+    }
+    setPendingUnassign(null);
+  };
 
   return (
     <div
       className={`um-drawer-root um-drawer-root--manage${open ? " um-drawer-root--open" : ""}`}
       aria-hidden={!open}
     >
-      <button type="button" className="um-drawer-backdrop" aria-label="Close manage users" onClick={onClose} />
+      <button
+        type="button"
+        className="um-drawer-backdrop"
+        aria-label="Close manage users"
+        onClick={() => {
+          if (!assignDialogOpen && !pendingUnassign) {
+            onClose();
+          }
+        }}
+      />
       <aside
         className="um-manage-users-drawer"
         role="dialog"
@@ -108,108 +148,132 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
         aria-hidden={!open}
       >
         <header className="um-manage-users-drawer__header">
-          <button type="button" className="um-manage-users-drawer__close" aria-label="Close" onClick={onClose}>
-            <IconClose />
-          </button>
-          <h2 id="um-manage-users-drawer-title" className="um-manage-users-drawer__title">
-            Manage Users
-          </h2>
+          <div className="um-manage-users-drawer__header-start">
+            <button type="button" className="um-manage-users-drawer__close" aria-label="Close" onClick={onClose}>
+              <IconClose />
+            </button>
+            <h2 id="um-manage-users-drawer-title" className="um-manage-users-drawer__title">
+              Manage Users
+            </h2>
+          </div>
+          {isNewModularRole ? (
+            <button
+              type="button"
+              className="um-btn-primary um-manage-users-drawer__header-assign"
+              onClick={() => setAssignDialogOpen(true)}
+            >
+              Assign users
+            </button>
+          ) : null}
         </header>
 
         <div className="um-manage-users-drawer__body">
-          <div className="um-manage-users-drawer__intro">
-            <div className="um-manage-users-drawer__field">
-              <span className="um-manage-users-drawer__label">Role</span>
-              <span className="um-manage-users-drawer__value">{roleName}</span>
+          {!isNewModularRole ? (
+            <div
+              className="um-info-banner um-info-banner--manage-users-drawer um-info-banner--manage-users-drawer-top"
+              role="note"
+            >
+              <span className="um-info-banner__icon">
+                <IconInfo />
+              </span>
+              <p className="um-info-banner__text">
+                This role is being phased out, hence you cannot assign any new users to this role.
+                Current assignees of this role will automatically be transferred to their
+                corresponding new roles. No access will be lost.
+              </p>
             </div>
-            <div className="um-manage-users-drawer__field um-manage-users-drawer__field--wide">
-              <span className="um-manage-users-drawer__label">Role Description</span>
-              <span className="um-manage-users-drawer__value">{roleDescription}</span>
-            </div>
-          </div>
+          ) : null}
+          <RoleOverviewMetaCard key={row?.id} row={row} className="um-manage-users-drawer__role-meta" />
 
-          <div className="um-segment-toggle" role="tablist" aria-label="User assignment">
+          <div className="um-manage-users-drawer__sub-tabs" role="tablist" aria-label="Manage users views">
             <button
               type="button"
               role="tab"
-              className={`um-segment-toggle__btn${assignmentView === "assigned" ? " um-segment-toggle__btn--active" : ""}`}
-              aria-selected={assignmentView === "assigned"}
-              onClick={() => setAssignmentView("assigned")}
+              className={`um-sub-tab${manageView === "overview" ? " um-sub-tab--active" : ""}`}
+              aria-selected={manageView === "overview"}
+              onClick={() => setManageView("overview")}
             >
-              Assigned
+              Overview
             </button>
             <button
               type="button"
               role="tab"
-              className={`um-segment-toggle__btn${assignmentView === "unassigned" ? " um-segment-toggle__btn--active" : ""}`}
-              aria-selected={assignmentView === "unassigned"}
-              onClick={() => setAssignmentView("unassigned")}
+              className={`um-sub-tab${manageView === "assigned" ? " um-sub-tab--active" : ""}`}
+              aria-selected={manageView === "assigned"}
+              onClick={() => setManageView("assigned")}
             >
-              Unassigned
+              Assigned users
             </button>
           </div>
 
-          <div className="um-manage-users-drawer__panel">
-            {showDeprecationEmpty ? (
-              <div className="um-manage-users-drawer__empty" role="status">
-                <div className="um-legacy-assign-deprecation um-manage-users-drawer__empty-text">
-                  <LegacyAssignDeprecationCopy idPrefix="um-manage-empty" />
+          {manageView === "overview" ? (
+            <div className="um-manage-users-drawer__overview">
+              <RolePermissionsOverview row={row} includeMetaCard={false} />
+            </div>
+          ) : (
+            <>
+              <div className="um-manage-users-drawer__panel">
+              <div className="um-manage-users-drawer__toolbar">
+                <div className="um-search-bar um-search-bar--drawer">
+                  <div className="um-search-bar__lead">
+                    <IconSearchOutline />
+                    <span className="um-search-bar__lead-text">Search</span>
+                  </div>
+                  <div className="um-search-bar__divider" role="separator" aria-orientation="vertical" />
+                  <input
+                    type="search"
+                    className="um-search-bar__input"
+                    aria-label="Search users by name or email"
+                    value={userSearchQuery}
+                    onChange={(event) => setUserSearchQuery(event.target.value)}
+                  />
                 </div>
               </div>
-            ) : (
-              <>
-                <div className="um-manage-users-drawer__toolbar">
-                  <div className="um-search-bar um-search-bar--drawer">
-                    <div className="um-search-bar__lead">
-                      <IconSearchOutline />
-                      <span className="um-search-bar__lead-text">Search</span>
-                    </div>
-                    <div className="um-search-bar__divider" role="separator" aria-orientation="vertical" />
-                    <input type="search" className="um-search-bar__input" aria-label="Search users" />
-                  </div>
-                </div>
-
-                <div className="um-manage-users-drawer__table-wrap">
-                  <table className="um-table um-table--manage-users">
-                    <thead>
-                      <tr>
-                        <th className="um-col-mu-name">Name</th>
-                        <th className="um-col-mu-email">Email</th>
-                        <th className="um-col-mu-action">Action</th>
+              <div className="um-manage-users-drawer__table-wrap">
+                <table className="um-table um-table--manage-users">
+                  <thead>
+                    <tr>
+                      <th className="um-col-mu-name">Name</th>
+                      <th className="um-col-mu-email">Email</th>
+                      <th className="um-col-mu-action">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assignedRows.map((user) => (
+                      <tr key={user.id}>
+                        <td className="um-col-mu-name">{user.name}</td>
+                        <td className="um-col-mu-email">{user.email}</td>
+                        <td className="um-col-mu-action">
+                          <button type="button" className="um-btn-unassign" onClick={() => handleUnassignClick(user)}>
+                            Unassign
+                          </button>
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {panelRows.map((user) => (
-                        <tr key={user.id}>
-                          <td className="um-col-mu-name">{user.name}</td>
-                          <td className="um-col-mu-email">{user.email}</td>
-                          <td className="um-col-mu-action">
-                            <button
-                              type="button"
-                              className={`um-btn-unassign${legacyAssignBlocked ? " um-btn-unassign--blocked" : ""}`}
-                              aria-disabled={legacyAssignBlocked || undefined}
-                              onClick={
-                                legacyAssignBlocked
-                                  ? () => setDeprecationAlertOpen(true)
-                                  : undefined
-                              }
-                            >
-                              {isUnassignedView ? "Assign" : "Unassign"}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
-            )}
-          </div>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              </div>
+            </>
+          )}
         </div>
 
-        <LegacyAssignDeprecationAlert
-          open={deprecationAlertOpen}
-          onClose={() => setDeprecationAlertOpen(false)}
+        <AssignUserDialog
+          open={assignDialogOpen}
+          users={MANAGE_USERS_UNASSIGNED_ROWS}
+          roleName={row?.roleName}
+          modules={row?.modules}
+          showNewTag={row?.showNewTag}
+          onClose={() => setAssignDialogOpen(false)}
+        />
+
+        <LegacyUnassignConfirmDialog
+          open={pendingUnassign !== null}
+          context="by-role"
+          roleName={row?.roleName}
+          modules={row?.modules}
+          onClose={() => setPendingUnassign(null)}
+          onConfirm={confirmLegacyUnassign}
         />
       </aside>
     </div>

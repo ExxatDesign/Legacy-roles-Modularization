@@ -1,22 +1,22 @@
+import { getModuleTagToneClass } from "../lib/module-tag-tone";
+
 type RoleModulesCellProps = {
   modules: string[];
 };
+
+function ModuleTag({ name }: { name: string }) {
+  return <span className={`um-module-tag ${getModuleTagToneClass(name)}`}>{name}</span>;
+}
 
 export function RoleModulesCell({ modules }: RoleModulesCellProps) {
   if (modules.length === 0) {
     return <>—</>;
   }
 
-  if (modules.length === 1) {
-    return <>{modules[0]}</>;
-  }
-
   return (
     <span className="um-role-modules">
       {modules.map((moduleName) => (
-        <span key={moduleName} className="um-role-modules__item">
-          {moduleName}
-        </span>
+        <ModuleTag key={moduleName} name={moduleName} />
       ))}
     </span>
   );

@@ -16,7 +16,7 @@ export const USER_MANAGEMENT_ROWS: UserManagementRow[] = [
     name: "Brown, Dr. Michael",
     userName: "michael.brown@university.edu",
     emailId: "michael.brown@university.edu",
-    associatedRoles: 1,
+    associatedRoles: 2,
     moduleAccess: "Faculty",
     lastLoginTime: "No data found",
     createdDateTime: "03/31/2026, 02:09:50 AM EDT",

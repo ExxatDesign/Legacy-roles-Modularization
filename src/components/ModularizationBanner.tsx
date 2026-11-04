@@ -1,9 +1,12 @@
 import { useCallback, useState } from "react";
 import {
-  MODULARIZATION_PAGE_BANNER_BODY_AFTER,
+  MODULARIZATION_PAGE_BANNER_BODY_ALL_ROLES_AFTER,
   MODULARIZATION_PAGE_BANNER_BODY_BEFORE,
   MODULARIZATION_PAGE_BANNER_BODY_REASSURANCE,
   MODULARIZATION_PAGE_BANNER_EYEBROW,
+  MODULARIZATION_PAGE_BANNER_LEGACY_BODY,
+  MODULARIZATION_PAGE_BANNER_LEGACY_EYEBROW,
+  MODULARIZATION_PAGE_BANNER_LEGACY_TITLE,
   MODULARIZATION_PAGE_BANNER_TITLE,
 } from "../lib/legacy-role-modularization";
 import { ModularizationBannerIllustration } from "./ModularizationBannerIllustration";
@@ -24,7 +27,12 @@ function IconClose() {
   );
 }
 
-export function ModularizationBanner() {
+type ModularizationBannerProps = {
+  /** When true (Only show Legacy roles), use reassurance copy for legacy-only list. */
+  legacyFilterActive?: boolean;
+};
+
+export function ModularizationBanner({ legacyFilterActive = false }: ModularizationBannerProps) {
   const [dismissed, setDismissed] = useState(false);
 
   const onDismiss = useCallback(() => {
@@ -57,16 +65,28 @@ export function ModularizationBanner() {
           </div>
           <div className="um-modularization-banner__content">
             <div className="um-modularization-banner__headline">
-              <p className="um-modularization-banner__eyebrow">{MODULARIZATION_PAGE_BANNER_EYEBROW}</p>
+              <p className="um-modularization-banner__eyebrow">
+                {legacyFilterActive ? MODULARIZATION_PAGE_BANNER_LEGACY_EYEBROW : MODULARIZATION_PAGE_BANNER_EYEBROW}
+              </p>
               <h2 id="um-modularization-banner-title" className="um-modularization-banner__title">
-                {MODULARIZATION_PAGE_BANNER_TITLE}
+                {legacyFilterActive ? MODULARIZATION_PAGE_BANNER_LEGACY_TITLE : MODULARIZATION_PAGE_BANNER_TITLE}
               </h2>
             </div>
             <p id="um-modularization-banner-body" className="um-modularization-banner__body">
-              {MODULARIZATION_PAGE_BANNER_BODY_BEFORE}{" "}
-              <span className="um-role-new-tag um-modularization-banner__inline-tag">New</span>{" "}
-              {MODULARIZATION_PAGE_BANNER_BODY_AFTER}{" "}
-              <span className="um-modularization-banner__reassurance">{MODULARIZATION_PAGE_BANNER_BODY_REASSURANCE}</span>
+              {legacyFilterActive ? (
+                <>
+                  {MODULARIZATION_PAGE_BANNER_LEGACY_BODY}{" "}
+                  <span className="um-modularization-banner__reassurance">
+                    {MODULARIZATION_PAGE_BANNER_BODY_REASSURANCE}
+                  </span>
+                </>
+              ) : (
+                <>
+                  {MODULARIZATION_PAGE_BANNER_BODY_BEFORE}{" "}
+                  <span className="um-role-new-tag um-modularization-banner__inline-tag">New</span>{" "}
+                  {MODULARIZATION_PAGE_BANNER_BODY_ALL_ROLES_AFTER}
+                </>
+              )}
             </p>
           </div>
         </div>

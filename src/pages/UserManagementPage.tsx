@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { UserManagementSiteHeader } from "../components/UserManagementSiteHeader";
 import { ManageRolesDrawer } from "../components/ManageRolesDrawer";
 import { RoleModulesCell } from "../components/RoleModulesCell";
 import { ModularizationBanner } from "../components/ModularizationBanner";
 import { RoleNameWithTags } from "../components/RoleNameWithTags";
+import { AssignUserDialog } from "../components/AssignUserDialog";
 import { ManageUsersDrawer } from "../components/ManageUsersDrawer";
-import { RoleDetailsDrawer } from "../components/RoleDetailsDrawer";
+import { MANAGE_USERS_UNASSIGNED_ROWS } from "../data/manage-users-assigned-rows";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
 import { USER_MANAGEMENT_ROLE_ROWS } from "../data/user-management-role-rows";
 import type { UserManagementRow } from "../data/user-management-rows";
@@ -107,8 +108,8 @@ function IconEyeOutline() {
       strokeWidth="1.75"
       aria-hidden
     >
-      <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z" />
-      <circle cx="12" cy="12" r="2.75" />
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="3" />
     </svg>
   );
 }
@@ -119,9 +120,65 @@ function isEmptyLogin(value: string) {
 
 export function UserManagementPage() {
   const [rolesView, setRolesView] = useState<RolesView>("by-role");
-  const [roleDetailsRow, setRoleDetailsRow] = useState<UserManagementRoleRow | null>(null);
   const [manageUsersRole, setManageUsersRole] = useState<UserManagementRoleRow | null>(null);
+  const [assignUsersRole, setAssignUsersRole] = useState<UserManagementRoleRow | null>(null);
   const [manageRolesUser, setManageRolesUser] = useState<UserManagementRow | null>(null);
+  const [onlyLegacyRoles, setOnlyLegacyRoles] = useState(false);
+  const [roleSearchQuery, setRoleSearchQuery] = useState("");
+  const [hoveredUserName, setHoveredUserName] = useState<string | null>(null);
+
+  const byRoleRows = useMemo(() => {
+    const rows = onlyLegacyRoles
+      ? USER_MANAGEMENT_ROLE_ROWS.filter((row) => !row.showNewTag)
+      : [...USER_MANAGEMENT_ROLE_ROWS];
+
+    const query = roleSearchQuery.trim().toLowerCase();
+    const filtered =
+      query.length === 0
+        ? rows
+        : rows.filter(
+            (row) =>
+              row.roleName.toLowerCase().includes(query) ||
+              row.roleDescription.toLowerCase().includes(query),
+          );
+
+    if (!onlyLegacyRoles) {
+      filtered.sort((a, b) => Number(Boolean(b.showNewTag)) - Number(Boolean(a.showNewTag)));
+    }
+
+    return filtered;
+  }, [onlyLegacyRoles, roleSearchQuery]);
+
+  const byRolePaginatorRange = useMemo(() => {
+    const total = byRoleRows.length;
+    if (total === 0) {
+      return "0 of 0";
+    }
+    const end = Math.min(10, total);
+    return `1 – ${end} of ${total}`;
+  }, [byRoleRows.length]);
+
+  const assignDialogOpen = assignUsersRole !== null;
+
+  useEffect(() => {
+    if (!assignDialogOpen) {
+      return;
+    }
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setAssignUsersRole(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [assignDialogOpen]);
 
   return (
     <div className="um-page">
@@ -147,37 +204,81 @@ export function UserManagementPage() {
 
       <section className="um-content">
         <div className="um-content-inset">
-          <ModularizationBanner />
-          <div className="um-sub-tabs" role="tablist" aria-label="User roles view">
-            <button
-              type="button"
-              role="tab"
-              className={`um-sub-tab${rolesView === "by-role" ? " um-sub-tab--active" : ""}`}
-              aria-selected={rolesView === "by-role"}
-              onClick={() => setRolesView("by-role")}
-            >
-              By Role
-            </button>
-            <button
-              type="button"
-              role="tab"
-              className={`um-sub-tab${rolesView === "by-name" ? " um-sub-tab--active" : ""}`}
-              aria-selected={rolesView === "by-name"}
-              onClick={() => setRolesView("by-name")}
-            >
-              By Name
-            </button>
+          <ModularizationBanner
+            legacyFilterActive={rolesView === "by-role" && onlyLegacyRoles}
+          />
+          <div className="um-sub-tabs-rail">
+            <div className="um-sub-tabs" role="tablist" aria-label="User roles view">
+              <button
+                type="button"
+                role="tab"
+                className={`um-sub-tab${rolesView === "by-role" ? " um-sub-tab--active" : ""}`}
+                aria-selected={rolesView === "by-role"}
+                onClick={() => setRolesView("by-role")}
+              >
+                By Role
+              </button>
+              <button
+                type="button"
+                role="tab"
+                className={`um-sub-tab${rolesView === "by-name" ? " um-sub-tab--active" : ""}`}
+                aria-selected={rolesView === "by-name"}
+                onClick={() => setRolesView("by-name")}
+              >
+                By Name
+              </button>
+            </div>
+
+            {rolesView === "by-role" ? (
+              <div className="um-legacy-role-filter" role="toolbar" aria-label="Role list filters">
+                <label className="um-legacy-role-filter__control">
+                  <span className="um-toggle-switch">
+                    <input
+                      type="checkbox"
+                      className="um-toggle-switch__input"
+                      role="switch"
+                      checked={onlyLegacyRoles}
+                      onChange={(event) => setOnlyLegacyRoles(event.target.checked)}
+                    />
+                    <span className="um-toggle-switch__track" aria-hidden>
+                      <span className="um-toggle-switch__thumb" />
+                    </span>
+                  </span>
+                  <span className="um-legacy-role-filter__label">Only show Legacy roles</span>
+                </label>
+              </div>
+            ) : null}
           </div>
 
           <div className="um-data-panel">
           <div className="um-toolbar">
-            <div className="um-search-bar">
+            <div
+              className={`um-search-bar${rolesView === "by-role" ? " um-search-bar--by-role" : ""}`}
+            >
               <div className="um-search-bar__lead">
                 <IconSearchOutline />
-                <span className="um-search-bar__lead-text">Search</span>
+                <span className="um-search-bar__lead-text">
+                  {rolesView === "by-role"
+                    ? "Search by role name and description"
+                    : "Search"}
+                </span>
               </div>
               <div className="um-search-bar__divider" role="separator" aria-orientation="vertical" />
-              <input type="search" className="um-search-bar__input" aria-label="Search" />
+              <input
+                type="search"
+                className="um-search-bar__input"
+                aria-label={
+                  rolesView === "by-role"
+                    ? "Search by role name and description"
+                    : "Search"
+                }
+                value={rolesView === "by-role" ? roleSearchQuery : ""}
+                onChange={(event) => {
+                  if (rolesView === "by-role") {
+                    setRoleSearchQuery(event.target.value);
+                  }
+                }}
+              />
               {rolesView === "by-role" ? (
                 <button type="button" className="um-search-bar__export" aria-label="Filter">
                   <IconFilterOutline />
@@ -205,7 +306,11 @@ export function UserManagementPage() {
 
           {rolesView === "by-role" ? (
             <div className="um-table-wrap um-table-wrap--by-role">
-              <table className="um-table um-table--by-role">
+              <table
+                className={`um-table um-table--by-role${
+                  onlyLegacyRoles ? " um-table--by-role-legacy-actions" : ""
+                }`}
+              >
                 <thead>
                   <tr>
                     <th className="um-col-role-name">Role Name</th>
@@ -222,8 +327,20 @@ export function UserManagementPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {USER_MANAGEMENT_ROLE_ROWS.map((row) => (
-                    <tr key={row.id}>
+                  {byRoleRows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="um-table-row--clickable"
+                      tabIndex={0}
+                      aria-label={`Manage users for ${row.roleName}`}
+                      onClick={() => setManageUsersRole(row)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setManageUsersRole(row);
+                        }
+                      }}
+                    >
                       <td className="um-col-role-name">
                         <RoleNameWithTags roleName={row.roleName} showNewTag={row.showNewTag} />
                       </td>
@@ -243,29 +360,32 @@ export function UserManagementPage() {
                         <button
                           type="button"
                           className={`um-user-count${row.totalUsers === 0 ? " um-user-count--zero" : ""}`}
+                          onClick={(event) => event.stopPropagation()}
                         >
                           {row.totalUsers}
                         </button>
                       </td>
                       <td className="um-col-role-desc">{row.roleDescription}</td>
-                      <td className="um-col-role-action">
-                        <div className="um-role-action-cell">
-                          <button
-                            type="button"
-                            className="um-btn-manage um-btn-manage-user"
-                            onClick={() => setManageUsersRole(row)}
-                          >
-                            Manage User
-                          </button>
+                      <td className="um-col-role-action" onClick={(event) => event.stopPropagation()}>
+                        <span className="um-role-action-cell">
+                          {row.showNewTag ? (
+                            <button
+                              type="button"
+                              className="um-btn-manage um-btn-manage-user"
+                              onClick={() => setAssignUsersRole(row)}
+                            >
+                              Assign users
+                            </button>
+                          ) : null}
                           <button
                             type="button"
                             className="um-btn-icon-view"
-                            aria-label={`View role details for ${row.roleName}`}
-                            onClick={() => setRoleDetailsRow(row)}
+                            aria-label={`View manage users for ${row.roleName}`}
+                            onClick={() => setManageUsersRole(row)}
                           >
                             <IconEyeOutline />
                           </button>
-                        </div>
+                        </span>
                       </td>
                     </tr>
                   ))}
@@ -273,7 +393,10 @@ export function UserManagementPage() {
               </table>
             </div>
           ) : (
-            <div className="um-table-split">
+            <div
+              className="um-table-split"
+              onMouseLeave={() => setHoveredUserName(null)}
+            >
               <div className="um-table-scroll">
                 <table className="um-table um-table--data">
                   <thead>
@@ -294,8 +417,23 @@ export function UserManagementPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {USER_MANAGEMENT_ROWS.map((row) => (
-                      <tr key={row.userName}>
+                    {USER_MANAGEMENT_ROWS.map((row) => {
+                      const rowHighlighted = hoveredUserName === row.userName;
+                      return (
+                      <tr
+                        key={row.userName}
+                        className={`um-table-row--clickable${rowHighlighted ? " um-table-row--highlighted" : ""}`}
+                        tabIndex={0}
+                        aria-label={`Manage roles for ${row.name}`}
+                        onMouseEnter={() => setHoveredUserName(row.userName)}
+                        onClick={() => setManageRolesUser(row)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            setManageRolesUser(row);
+                          }
+                        }}
+                      >
                         <td className="um-col-name">{row.name}</td>
                         <td className="um-col-user">{row.userName}</td>
                         <td className="um-col-email">{row.emailId}</td>
@@ -324,7 +462,8 @@ export function UserManagementPage() {
                         </td>
                         <td className="um-col-updated">{row.lastUpdatedDateTime}</td>
                       </tr>
-                    ))}
+                    );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -336,19 +475,30 @@ export function UserManagementPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {USER_MANAGEMENT_ROWS.map((row) => (
-                      <tr key={row.userName}>
+                    {USER_MANAGEMENT_ROWS.map((row) => {
+                      const rowHighlighted = hoveredUserName === row.userName;
+                      return (
+                      <tr
+                        key={row.userName}
+                        className={`um-table-row--clickable${rowHighlighted ? " um-table-row--highlighted" : ""}`}
+                        onMouseEnter={() => setHoveredUserName(row.userName)}
+                        onClick={() => setManageRolesUser(row)}
+                      >
                         <td className="um-col-action">
                           <button
                             type="button"
                             className="um-btn-manage"
-                            onClick={() => setManageRolesUser(row)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setManageRolesUser(row);
+                            }}
                           >
                             Manage Role
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -366,7 +516,7 @@ export function UserManagementPage() {
             </label>
             <div className="um-paginator__divider" aria-hidden />
             <span className="um-paginator__range">
-              {rolesView === "by-role" ? "1 – 10 of 15" : "1 – 10 of 67"}
+              {rolesView === "by-role" ? byRolePaginatorRange : "1 – 10 of 67"}
             </span>
             <div className="um-paginator__divider" aria-hidden />
             <div className="um-paginator__nav">
@@ -397,8 +547,15 @@ export function UserManagementPage() {
         </div>
       </section>
 
-      <RoleDetailsDrawer row={roleDetailsRow} onClose={() => setRoleDetailsRow(null)} />
       <ManageUsersDrawer row={manageUsersRole} onClose={() => setManageUsersRole(null)} />
+      <AssignUserDialog
+        open={assignUsersRole !== null}
+        users={MANAGE_USERS_UNASSIGNED_ROWS}
+        roleName={assignUsersRole?.roleName}
+        modules={assignUsersRole?.modules}
+        showNewTag={assignUsersRole?.showNewTag}
+        onClose={() => setAssignUsersRole(null)}
+      />
       <ManageRolesDrawer user={manageRolesUser} onClose={() => setManageRolesUser(null)} />
     </div>
   );
