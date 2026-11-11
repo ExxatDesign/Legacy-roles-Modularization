@@ -1904,6 +1904,10 @@ html.theme-blue-dark .um-manage-users-drawer__sub-tabs .um-sub-tab--active .um-t
   padding: 1.5rem;
 }
 
+.um-assign-user-dialog--confirm {
+  z-index: 120;
+}
+
 .um-assign-user-dialog__backdrop {
   position: absolute;
   inset: 0;
@@ -2392,6 +2396,31 @@ button.um-assign-user-dialog__backdrop {
 .um-assign-user-dialog__status--success {
   background: var(--prism-status-success-bg);
   color: var(--prism-status-success-fg);
+}
+
+.um-unassign-confirm__subject {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin: 0 0 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--prism-border);
+  border-radius: 0.25rem;
+  background: var(--prism-surface-muted);
+}
+
+.um-unassign-confirm__subject-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--prism-text-secondary);
+}
+
+.um-unassign-confirm__subject-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--prism-text-primary);
 }
 
 .um-assign-user-dialog__message {
@@ -3313,6 +3342,10 @@ html.theme-blue-dark .um-assign-role-brief__details {
 
 .um-info-banner--manage-users-drawer-top {
   margin-bottom: 0.875rem;
+}
+
+.um-info-banner--unassign-confirm {
+  margin: 0 0 1rem;
 }
 
 .um-manage-users-drawer__toolbar {

@@ -96,10 +96,6 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
   );
 
   const handleUnassignClick = (user: ManageUsersAssignedRow) => {
-    if (isNewModularRole) {
-      setUnassignedIds((current) => [...current, user.id]);
-      return;
-    }
     setPendingUnassign(user);
   };
 
@@ -239,8 +235,12 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
         <LegacyUnassignConfirmDialog
           open={pendingUnassign !== null}
           context="by-role"
+          legacy={!isNewModularRole}
           roleName={row?.roleName}
           modules={row?.modules}
+          showNewTag={row?.showNewTag}
+          showLegacyTag={!row?.showNewTag}
+          subjectName={pendingUnassign?.name}
           onClose={() => setPendingUnassign(null)}
           onConfirm={confirmLegacyUnassign}
         />

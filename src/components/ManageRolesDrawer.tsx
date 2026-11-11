@@ -107,10 +107,6 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
   }, [currentlyAssignedRows, roleSearchQuery]);
 
   const handleUnassignClick = (roleRow: ManageRolesAssignmentRow) => {
-    if (!isLegacyRoleAssignment(roleRow)) {
-      setUnassignedRoleIds((current) => [...current, roleRow.id]);
-      return;
-    }
     setPendingUnassign(roleRow);
   };
 
@@ -296,10 +292,14 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
         <LegacyUnassignConfirmDialog
           open={pendingUnassign !== null}
           context="by-name"
+          legacy={pendingUnassign ? isLegacyRoleAssignment(pendingUnassign) : true}
           roleName={pendingUnassign?.roleName}
           modules={
             pendingUnassign?.module && pendingUnassign.module !== "—" ? [pendingUnassign.module] : []
           }
+          showNewTag={pendingUnassign?.showNewTag}
+          showLegacyTag={pendingUnassign?.showLegacyTag}
+          subjectName={user?.name}
           onClose={() => setPendingUnassign(null)}
           onConfirm={confirmLegacyUnassign}
         />
