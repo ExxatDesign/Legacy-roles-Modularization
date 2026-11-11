@@ -1,12 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { UserManagementSiteHeader } from "../components/UserManagementSiteHeader";
 import { ManageRolesDrawer } from "../components/ManageRolesDrawer";
 import { RoleModulesCell } from "../components/RoleModulesCell";
 import { ModularizationBanner } from "../components/ModularizationBanner";
 import { RoleNameWithTags } from "../components/RoleNameWithTags";
-import { AssignUserDialog } from "../components/AssignUserDialog";
 import { ManageUsersDrawer } from "../components/ManageUsersDrawer";
-import { MANAGE_USERS_UNASSIGNED_ROWS } from "../data/manage-users-assigned-rows";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
 import { USER_MANAGEMENT_ROLE_ROWS } from "../data/user-management-role-rows";
 import type { UserManagementRow } from "../data/user-management-rows";
@@ -71,7 +69,6 @@ function isEmptyLogin(value: string) {
 export function UserManagementPage() {
   const [rolesView, setRolesView] = useState<RolesView>("by-role");
   const [manageUsersRole, setManageUsersRole] = useState<UserManagementRoleRow | null>(null);
-  const [assignUsersRole, setAssignUsersRole] = useState<UserManagementRoleRow | null>(null);
   const [manageRolesUser, setManageRolesUser] = useState<UserManagementRow | null>(null);
   const [onlyLegacyRoles, setOnlyLegacyRoles] = useState(false);
   const [roleSearchQuery, setRoleSearchQuery] = useState("");
@@ -107,28 +104,6 @@ export function UserManagementPage() {
     const end = Math.min(10, total);
     return `1 – ${end} of ${total}`;
   }, [byRoleRows.length]);
-
-  const assignDialogOpen = assignUsersRole !== null;
-
-  useEffect(() => {
-    if (!assignDialogOpen) {
-      return;
-    }
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setAssignUsersRole(null);
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [assignDialogOpen]);
 
   return (
     <div className="um-page">
@@ -316,9 +291,9 @@ export function UserManagementPage() {
                           <button
                             type="button"
                             className="um-btn-manage um-btn-manage-user"
-                            onClick={() => setAssignUsersRole(row)}
+                            onClick={() => setManageUsersRole(row)}
                           >
-                            Assign users
+                            Manage Role
                           </button>
                           <button
                             type="button"
@@ -483,18 +458,6 @@ export function UserManagementPage() {
       </section>
 
       <ManageUsersDrawer row={manageUsersRole} onClose={() => setManageUsersRole(null)} />
-      <AssignUserDialog
-        open={assignUsersRole !== null}
-        users={MANAGE_USERS_UNASSIGNED_ROWS}
-        role={assignUsersRole}
-        onClose={() => setAssignUsersRole(null)}
-        onViewDetails={() => {
-          if (assignUsersRole) {
-            setManageUsersRole(assignUsersRole);
-          }
-          setAssignUsersRole(null);
-        }}
-      />
       <ManageRolesDrawer user={manageRolesUser} onClose={() => setManageRolesUser(null)} />
     </div>
   );

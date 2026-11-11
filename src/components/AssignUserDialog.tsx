@@ -1,6 +1,8 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ManageUsersAssignedRow } from "../data/manage-users-assigned-rows";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
+import { findAlreadyAssignedUsers, userMatchesAssignSearch } from "../lib/assign-picker-search";
+import { AssignPickerAlreadyAssigned } from "./AssignPickerAlreadyAssigned";
 import { RoleModulesCell } from "./RoleModulesCell";
 import { RoleNameWithTags } from "./RoleNameWithTags";
 
@@ -9,6 +11,8 @@ type AssignPhase = "edit" | "error" | "success";
 type AssignUserDialogProps = {
   open: boolean;
   users: ManageUsersAssignedRow[];
+  /** Users already on this role — used when search matches no pickable options. */
+  assignedUsers?: ManageUsersAssignedRow[];
   role?: UserManagementRoleRow | null;
   onClose: () => void;
   onViewDetails?: () => void;
@@ -26,6 +30,7 @@ function IconChevronDown() {
 export function AssignUserDialog({
   open,
   users,
+  assignedUsers = [],
   role = null,
   onClose,
   onViewDetails,
@@ -83,18 +88,25 @@ export function AssignUserDialog({
     [selectedIds, users],
   );
 
-  const filteredOptions = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    return users.filter((user) => {
-      if (normalizedQuery.length === 0) {
-        return true;
-      }
-      return (
-        user.name.toLowerCase().includes(normalizedQuery) ||
-        user.email.toLowerCase().includes(normalizedQuery)
-      );
-    });
-  }, [query, users]);
+  const filteredOptions = useMemo(
+    () => users.filter((user) => userMatchesAssignSearch(user, query)),
+    [query, users],
+  );
+
+  const alreadyAssignedMatches = useMemo(
+    () => findAlreadyAssignedUsers(query, assignedUsers),
+    [assignedUsers, query],
+  );
+
+  const listEmptyMessage = useMemo(() => {
+    if (query.trim().length === 0) {
+      return users.length === 0 ? "No users available to assign." : null;
+    }
+    if (alreadyAssignedMatches.length > 0) {
+      return null;
+    }
+    return "No matching users.";
+  }, [alreadyAssignedMatches.length, query, users.length]);
 
   if (!open) {
     return null;
@@ -265,8 +277,25 @@ export function AssignUserDialog({
                 aria-multiselectable="true"
               >
                 {filteredOptions.length === 0 ? (
-                  <li className="um-assign-user-combobox__option um-assign-user-combobox__option--empty" aria-disabled>
-                    No matching users
+                  <li
+                    className={`um-assign-user-combobox__option${
+                      alreadyAssignedMatches.length > 0
+                        ? " um-assign-user-combobox__option--already-assigned"
+                        : " um-assign-user-combobox__option--empty"
+                    }`}
+                    aria-disabled
+                  >
+                    {alreadyAssignedMatches.length > 0 ? (
+                      <AssignPickerAlreadyAssigned
+                        label="Already assigned"
+                        tags={alreadyAssignedMatches.map((user) => ({
+                          key: user.id,
+                          text: user.name,
+                        }))}
+                      />
+                    ) : (
+                      listEmptyMessage
+                    )}
                   </li>
                 ) : (
                   filteredOptions.map((user) => {

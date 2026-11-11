@@ -1,11 +1,14 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ManageRolesAssignmentRow } from "../data/manage-roles-rows";
+import { findAlreadyAssignedRoles, roleMatchesAssignSearch } from "../lib/assign-picker-search";
+import { AssignPickerAlreadyAssigned } from "./AssignPickerAlreadyAssigned";
 import { ModuleTag } from "./ModuleTag";
 import { AssignRoleOptionInfo } from "./AssignRoleOptionInfo";
 
 type AssignRolesDialogProps = {
   open: boolean;
   roles: ManageRolesAssignmentRow[];
+  assignedRoles?: ManageRolesAssignmentRow[];
   onClose: () => void;
   onAssign?: (roles: ManageRolesAssignmentRow[]) => void;
 };
@@ -18,11 +21,13 @@ function IconChevronDown() {
   );
 }
 
-function isLegacyAssignRole(role: ManageRolesAssignmentRow) {
-  return role.showLegacyTag === true || role.allowAssign === false;
-}
-
-export function AssignRolesDialog({ open, roles, onClose, onAssign }: AssignRolesDialogProps) {
+export function AssignRolesDialog({
+  open,
+  roles,
+  assignedRoles = [],
+  onClose,
+  onAssign,
+}: AssignRolesDialogProps) {
   const labelId = useId();
   const listId = useId();
   const comboboxId = useId();
@@ -80,26 +85,32 @@ export function AssignRolesDialog({ open, roles, onClose, onAssign }: AssignRole
     [listRoles, selectedIds],
   );
 
-  const filteredOptions = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    return listRoles.filter((role) => {
-      if (normalizedQuery.length === 0) {
-        return true;
-      }
-      return (
-        role.roleName.toLowerCase().includes(normalizedQuery) ||
-        role.module.toLowerCase().includes(normalizedQuery) ||
-        role.roleDescription.toLowerCase().includes(normalizedQuery)
-      );
-    });
-  }, [listRoles, query]);
+  const filteredOptions = useMemo(
+    () => listRoles.filter((role) => roleMatchesAssignSearch(role, query)),
+    [listRoles, query],
+  );
+
+  const alreadyAssignedMatches = useMemo(
+    () => findAlreadyAssignedRoles(query, assignedRoles),
+    [assignedRoles, query],
+  );
+
+  const listEmptyMessage = useMemo(() => {
+    if (query.trim().length === 0) {
+      return roles.length === 0 ? "No roles available to assign." : null;
+    }
+    if (alreadyAssignedMatches.length > 0) {
+      return null;
+    }
+    return "No matching roles.";
+  }, [alreadyAssignedMatches.length, query, roles.length]);
 
   if (!open) {
     return null;
   }
 
   const toggleRole = (role: ManageRolesAssignmentRow) => {
-    if (isLegacyAssignRole(role)) {
+    if (role.showLegacyTag) {
       return;
     }
     setSelectedIds((current) =>
@@ -114,10 +125,11 @@ export function AssignRolesDialog({ open, roles, onClose, onAssign }: AssignRole
   };
 
   const handleAssign = () => {
-    if (selectedRoles.length === 0) {
+    const assignable = selectedRoles.filter((role) => !role.showLegacyTag);
+    if (assignable.length === 0) {
       return;
     }
-    onAssign?.(selectedRoles);
+    onAssign?.(assignable);
     onClose();
   };
 
@@ -199,32 +211,48 @@ export function AssignRolesDialog({ open, roles, onClose, onAssign }: AssignRole
                   aria-multiselectable="true"
                 >
                   {filteredOptions.length === 0 ? (
-                    <li className="um-assign-user-combobox__option um-assign-user-combobox__option--empty" aria-disabled>
-                      No matching roles
+                    <li
+                      className={`um-assign-user-combobox__option${
+                        alreadyAssignedMatches.length > 0
+                          ? " um-assign-user-combobox__option--already-assigned"
+                          : " um-assign-user-combobox__option--empty"
+                      }`}
+                      aria-disabled
+                    >
+                      {alreadyAssignedMatches.length > 0 ? (
+                        <AssignPickerAlreadyAssigned
+                          label="Already assigned"
+                          tags={alreadyAssignedMatches.map((role) => ({
+                            key: role.id,
+                            text: role.roleName,
+                          }))}
+                        />
+                      ) : (
+                        listEmptyMessage
+                      )}
                     </li>
                   ) : (
                     filteredOptions.map((role) => {
-                      const legacyRole = isLegacyAssignRole(role);
-                      const checked = !legacyRole && selectedIds.includes(role.id);
+                      const legacy = role.showLegacyTag === true;
+                      const checked = !legacy && selectedIds.includes(role.id);
                       return (
                         <li
                           key={role.id}
                           className="um-assign-roles-list__item"
                           role="option"
                           aria-selected={checked}
-                          aria-disabled={legacyRole}
+                          aria-disabled={legacy}
                         >
                           <label
                             className={`um-assign-user-combobox__option um-assign-roles-option-row${
-                              legacyRole ? " um-assign-roles-option-row--legacy-disabled" : ""
+                              legacy ? " um-assign-roles-option-row--legacy-disabled" : ""
                             }`}
                           >
                             <input
                               type="checkbox"
                               className="um-assign-user-combobox__checkbox"
                               checked={checked}
-                              disabled={legacyRole}
-                              aria-disabled={legacyRole}
+                              disabled={legacy}
                               onChange={() => toggleRole(role)}
                             />
                             <span className="um-assign-roles-option__main">

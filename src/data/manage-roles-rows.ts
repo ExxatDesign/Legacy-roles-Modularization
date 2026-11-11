@@ -23,7 +23,7 @@ function toManageRow(role: UserManagementRoleRow, allowAssign: boolean): ManageR
     module: role.modules[0] ?? "—",
     allowAssign,
     showNewTag: role.showNewTag,
-    showLegacyTag: allowAssign ? undefined : !role.showNewTag,
+    showLegacyTag: role.showNewTag ? undefined : true,
   };
 }
 
@@ -33,7 +33,7 @@ const NEW_MODULAR_UNASSIGNED: ManageRolesAssignmentRow[] = [...MODULAR_ROLES_SC2
 
 const LEGACY_UNASSIGNED: ManageRolesAssignmentRow[] = USER_MANAGEMENT_ROLE_ROWS.filter(
   (role) => !role.showNewTag,
-).map((role) => toManageRow(role, false));
+).map((role) => toManageRow(role, true));
 
 const BROWN_ASSIGNED: ManageRolesAssignmentRow[] = [
   {
@@ -42,7 +42,7 @@ const BROWN_ASSIGNED: ManageRolesAssignmentRow[] = [
     roleDescription: "This role would grant faculty access to the user.",
     module: "FacultyPersona",
     assignedDateTime: "03/31/2026 06:09:51",
-    allowAssign: false,
+    allowAssign: true,
     showLegacyTag: true,
   },
   {
@@ -64,7 +64,7 @@ const GENERIC_ASSIGNED: ManageRolesAssignmentRow[] = [
     roleDescription: "This role would grant faculty access to the user.",
     module: "FacultyPersona",
     assignedDateTime: "03/31/2026 06:09:51",
-    allowAssign: false,
+    allowAssign: true,
     showLegacyTag: true,
   },
   {

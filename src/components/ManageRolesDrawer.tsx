@@ -11,7 +11,7 @@ import {
 import { LegacyUnassignConfirmDialog } from "./LegacyUnassignConfirmDialog";
 
 function isLegacyRoleAssignment(row: ManageRolesAssignmentRow) {
-  return row.showLegacyTag === true || row.allowAssign === false;
+  return row.showLegacyTag === true;
 }
 
 function IconClose() {
@@ -34,6 +34,7 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [pendingUnassign, setPendingUnassign] = useState<ManageRolesAssignmentRow | null>(null);
   const [unassignedRoleIds, setUnassignedRoleIds] = useState<string[]>([]);
+  const [addedRoles, setAddedRoles] = useState<ManageRolesAssignmentRow[]>([]);
 
   useEffect(() => {
     if (!open) {
@@ -43,6 +44,7 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
     setAssignDialogOpen(false);
     setPendingUnassign(null);
     setUnassignedRoleIds([]);
+    setAddedRoles([]);
   }, [open, user?.userName]);
 
   useEffect(() => {
@@ -72,12 +74,28 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
     };
   }, [assignDialogOpen, open, onClose, pendingUnassign]);
 
-  const assignedRows = useMemo(() => (user ? getAssignedRolesForUser(user) : []), [user]);
-  const unassignedRoles = useMemo(() => (user ? getUnassignedRolesForUser(user) : []), [user]);
+  const assignedRows = useMemo(
+    () => (user ? [...getAssignedRolesForUser(user), ...addedRoles] : addedRoles),
+    [addedRoles, user],
+  );
+  const unassignedRoles = useMemo(() => {
+    if (!user) {
+      return [];
+    }
+    const assignedNames = new Set(
+      assignedRows.filter((row) => !unassignedRoleIds.includes(row.id)).map((row) => row.roleName),
+    );
+    return getUnassignedRolesForUser(user).filter((role) => !assignedNames.has(role.roleName));
+  }, [assignedRows, unassignedRoleIds, user]);
+
+  const currentlyAssignedRows = useMemo(
+    () => assignedRows.filter((row) => !unassignedRoleIds.includes(row.id)),
+    [assignedRows, unassignedRoleIds],
+  );
 
   const filteredAssignedRows = useMemo(() => {
     const query = roleSearchQuery.trim().toLowerCase();
-    const visible = assignedRows.filter((row) => !unassignedRoleIds.includes(row.id));
+    const visible = currentlyAssignedRows;
     if (query.length === 0) {
       return visible;
     }
@@ -86,7 +104,7 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
         row.roleName.toLowerCase().includes(query) ||
         row.roleDescription.toLowerCase().includes(query),
     );
-  }, [assignedRows, roleSearchQuery, unassignedRoleIds]);
+  }, [currentlyAssignedRows, roleSearchQuery]);
 
   const handleUnassignClick = (roleRow: ManageRolesAssignmentRow) => {
     if (!isLegacyRoleAssignment(roleRow)) {
@@ -101,6 +119,27 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
       setUnassignedRoleIds((current) => [...current, pendingUnassign.id]);
     }
     setPendingUnassign(null);
+  };
+
+  const assignRoles = (roles: ManageRolesAssignmentRow[]) => {
+    const assignedDateTime = new Intl.DateTimeFormat("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    }).format(new Date());
+    setAddedRoles((current) => [
+      ...current,
+      ...roles.map((role, index) => ({
+        ...role,
+        id: `${role.id}-assigned-${current.length + index}`,
+        assignedDateTime,
+        allowAssign: true,
+      })),
+    ]);
   };
 
   const totalRows = filteredAssignedRows.length;
@@ -137,13 +176,6 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
               Manage Roles
             </h2>
           </div>
-          <button
-            type="button"
-            className="um-btn-primary um-manage-users-drawer__header-assign"
-            onClick={() => setAssignDialogOpen(true)}
-          >
-            Assign roles
-          </button>
         </header>
 
         <div className="um-manage-users-drawer__body um-manage-roles-drawer__body">
@@ -155,9 +187,18 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
           </section>
 
           <section className="um-manage-roles-drawer__section" aria-labelledby="um-manage-roles-assigned-heading">
-            <h3 id="um-manage-roles-assigned-heading" className="um-manage-roles-drawer__section-title">
-              Assigned roles
-            </h3>
+            <div className="um-manage-roles-drawer__section-head">
+              <h3 id="um-manage-roles-assigned-heading" className="um-manage-roles-drawer__section-title">
+                Assigned roles
+              </h3>
+              <button
+                type="button"
+                className="um-btn-primary um-manage-roles-drawer__assign"
+                onClick={() => setAssignDialogOpen(true)}
+              >
+                Assign roles
+              </button>
+            </div>
             <div className="um-manage-users-drawer__panel">
               <div className="um-manage-users-drawer__toolbar">
                 <label className="um-search-field">
@@ -247,7 +288,9 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
         <AssignRolesDialog
           open={assignDialogOpen}
           roles={unassignedRoles}
+          assignedRoles={currentlyAssignedRows}
           onClose={() => setAssignDialogOpen(false)}
+          onAssign={assignRoles}
         />
 
         <LegacyUnassignConfirmDialog

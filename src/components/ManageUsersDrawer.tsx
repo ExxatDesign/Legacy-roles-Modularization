@@ -5,6 +5,7 @@ import {
   MANAGE_USERS_UNASSIGNED_ROWS,
   type ManageUsersAssignedRow,
 } from "../data/manage-users-assigned-rows";
+import { filterUnassignedUsersForRole } from "../lib/assign-picker-search";
 import { AssignUserDialog } from "./AssignUserDialog";
 import { LegacyUnassignConfirmDialog } from "./LegacyUnassignConfirmDialog";
 import { RoleOverviewMetaCard } from "./RoleOverviewMetaCard";
@@ -16,14 +17,6 @@ function IconClose() {
   return (
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
       <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function IconInfo() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
     </svg>
   );
 }
@@ -97,6 +90,11 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
     );
   }, [assignedPeople, userSearchQuery]);
 
+  const usersForAssign = useMemo(
+    () => filterUnassignedUsersForRole(MANAGE_USERS_UNASSIGNED_ROWS, assignedPeople),
+    [assignedPeople],
+  );
+
   const handleUnassignClick = (user: ManageUsersAssignedRow) => {
     if (isNewModularRole) {
       setUnassignedIds((current) => [...current, user.id]);
@@ -143,55 +141,42 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
               Manage Users
             </h2>
           </div>
-          {isNewModularRole ? (
-            <button
-              type="button"
-              className="um-btn-primary um-manage-users-drawer__header-assign"
-              onClick={() => setAssignDialogOpen(true)}
-            >
-              Assign users
-            </button>
-          ) : null}
         </header>
 
         <div className="um-manage-users-drawer__body">
-          {!isNewModularRole ? (
-            <div
-              className="um-info-banner um-info-banner--manage-users-drawer um-info-banner--manage-users-drawer-top"
-              role="note"
-            >
-              <span className="um-info-banner__icon">
-                <IconInfo />
-              </span>
-              <p className="um-info-banner__text">
-                This role is being phased out, hence you cannot assign any new users to this role.
-                Current assignees of this role will automatically be transferred to their
-                corresponding new roles. No access will be lost.
-              </p>
-            </div>
-          ) : null}
           <RoleOverviewMetaCard key={row?.id} row={row} className="um-manage-users-drawer__role-meta" />
 
-          <div className="um-manage-users-drawer__sub-tabs" role="tablist" aria-label="Manage users views">
-            <button
-              type="button"
-              role="tab"
-              className={`um-sub-tab${manageView === "overview" ? " um-sub-tab--active" : ""}`}
-              aria-selected={manageView === "overview"}
-              onClick={() => setManageView("overview")}
-            >
-              Overview
-            </button>
-            <button
-              type="button"
-              role="tab"
-              className={`um-sub-tab${manageView === "assigned" ? " um-sub-tab--active" : ""}`}
-              aria-selected={manageView === "assigned"}
-              onClick={() => setManageView("assigned")}
-            >
-              Assigned users
-              <span className="um-tab-count">{assignedPeople.length}</span>
-            </button>
+          <div className="um-manage-users-drawer__tab-row">
+            <div className="um-manage-users-drawer__sub-tabs" role="tablist" aria-label="Manage users views">
+              <button
+                type="button"
+                role="tab"
+                className={`um-sub-tab${manageView === "overview" ? " um-sub-tab--active" : ""}`}
+                aria-selected={manageView === "overview"}
+                onClick={() => setManageView("overview")}
+              >
+                Overview
+              </button>
+              <button
+                type="button"
+                role="tab"
+                className={`um-sub-tab${manageView === "assigned" ? " um-sub-tab--active" : ""}`}
+                aria-selected={manageView === "assigned"}
+                onClick={() => setManageView("assigned")}
+              >
+                Assigned users
+                <span className="um-tab-count">{assignedPeople.length}</span>
+              </button>
+            </div>
+            {isNewModularRole ? (
+              <button
+                type="button"
+                className="um-btn-primary um-manage-users-drawer__tab-assign"
+                onClick={() => setAssignDialogOpen(true)}
+              >
+                Assign users
+              </button>
+            ) : null}
           </div>
 
           {manageView === "overview" ? (
@@ -244,7 +229,8 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
 
         <AssignUserDialog
           open={assignDialogOpen}
-          users={MANAGE_USERS_UNASSIGNED_ROWS}
+          users={usersForAssign}
+          assignedUsers={assignedPeople}
           role={row}
           onClose={() => setAssignDialogOpen(false)}
           onViewDetails={() => setAssignDialogOpen(false)}

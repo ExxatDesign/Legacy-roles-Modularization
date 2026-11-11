@@ -15,13 +15,13 @@ type LegacyUnassignConfirmDialogProps = {
 const COPY_BY_NAME = {
   title: "Unassign user?",
   message:
-    "As this person is assigned to a legacy role, you won't be able to assign them back to this role. This role is being phased out.",
+    "This person is assigned to a legacy role. You can unassign them, and you won't be able to assign them back. This role is being phased out.",
 } as const;
 
 const COPY_BY_ROLE = {
   title: "Unassign user from this role?",
   message:
-    "As this is a legacy role you won't be allowed to reassign this person to this role again. legacy roles are being phased out.",
+    "This is a legacy role. You can unassign this person, and you won't be able to assign them to this role again. Legacy roles are being phased out.",
 } as const;
 
 export function LegacyUnassignConfirmDialog({
