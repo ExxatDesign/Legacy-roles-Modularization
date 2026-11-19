@@ -75,7 +75,7 @@ export function UserManagementPage() {
   const [hoveredUserName, setHoveredUserName] = useState<string | null>(null);
 
   const byRoleRows = useMemo(() => {
-    const rows = onlyLegacyRoles
+    let rows = onlyLegacyRoles
       ? USER_MANAGEMENT_ROLE_ROWS.filter((row) => !row.showNewTag)
       : [...USER_MANAGEMENT_ROLE_ROWS];
 
@@ -229,6 +229,7 @@ export function UserManagementPage() {
           ) : null}
 
           {rolesView === "by-role" ? (
+            <>
             <div className="um-table-wrap um-table-wrap--by-role">
               <table
                 className={`um-table um-table--by-role${onlyLegacyRoles ? " um-table--legacy" : ""}`}
@@ -310,6 +311,7 @@ export function UserManagementPage() {
                 </tbody>
               </table>
             </div>
+            </>
           ) : (
             <div
               className="um-table-split"

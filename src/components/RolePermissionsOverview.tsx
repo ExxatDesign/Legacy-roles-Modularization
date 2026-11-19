@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RoleOverviewMetaCard } from "./RoleOverviewMetaCard";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
+import { getExamPermissionsForRole } from "../data/exam-role-permissions";
+import { EXAM_MANAGEMENT_MODULE } from "../lib/exam-management-feature";
 
-const PERMISSION_NAV = [
+const BASE_PERMISSION_NAV = [
   "General",
   "Plan",
   "Placement",
@@ -12,7 +14,7 @@ const PERMISSION_NAV = [
   "Student",
 ] as const;
 
-type PermissionNavId = (typeof PERMISSION_NAV)[number];
+type PermissionNavId = (typeof BASE_PERMISSION_NAV)[number] | "Exam Management";
 
 const GENERAL_PERMISSION_ITEMS = [
   "Allow Users to Create, Edit & Select Templates While Sending Email out of the PRISM System",
@@ -32,7 +34,14 @@ type RolePermissionsOverviewProps = {
 };
 
 export function RolePermissionsOverview({ row, includeMetaCard = true }: RolePermissionsOverviewProps) {
+  const showExamNav = row?.modules.includes(EXAM_MANAGEMENT_MODULE) === true;
+  const permissionNav = showExamNav ? [...BASE_PERMISSION_NAV, "Exam Management" as const] : [...BASE_PERMISSION_NAV];
   const [activeNav, setActiveNav] = useState<PermissionNavId>("General");
+  const examPermissionGroups = getExamPermissionsForRole(row?.id);
+
+  useEffect(() => {
+    setActiveNav(showExamNav ? "Exam Management" : "General");
+  }, [row?.id, showExamNav]);
 
   return (
     <>
@@ -42,7 +51,7 @@ export function RolePermissionsOverview({ row, includeMetaCard = true }: RolePer
 
       <div className="um-role-drawer__permissions">
         <nav className="um-role-drawer__nav" aria-label="Permission categories">
-          {PERMISSION_NAV.map((item) => {
+          {permissionNav.map((item) => {
             const active = item === activeNav;
             return (
               <button
@@ -71,6 +80,22 @@ export function RolePermissionsOverview({ row, includeMetaCard = true }: RolePer
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+            </div>
+          ) : activeNav === "Exam Management" ? (
+            <div className="um-role-drawer__perm-groups">
+              {examPermissionGroups.map((group) => (
+                <div key={group.title} className="um-role-drawer__accordion">
+                  <div className="um-role-drawer__accordion-head">
+                    <span>{group.title}</span>
+                    <IconChevronUp />
+                  </div>
+                  <ul className="um-role-drawer__accordion-body">
+                    {group.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           ) : (
             <p className="um-role-drawer__perm-empty">No permissions configured for this category.</p>

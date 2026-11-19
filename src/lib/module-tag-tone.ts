@@ -10,6 +10,7 @@ const MODULE_TAG_TONE_BY_NAME: Record<string, string> = {
   Compliance: "compliance",
   "Sites and Contracts": "sites",
   Foundation: "foundation",
+  "Exam Management": "compliance",
 };
 
 export function getModuleTone(moduleName: string): string {

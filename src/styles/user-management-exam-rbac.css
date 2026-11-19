@@ -1,0 +1,179 @@
+.um-legacy-role-filter {
+  gap: 0.625rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.um-module-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--prism-border);
+  border-radius: 624.9375rem;
+  background: var(--prism-surface);
+  color: var(--prism-text-secondary);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.um-module-filter-chip:hover {
+  background: var(--prism-primary-hover-faint);
+  color: var(--prism-text-primary);
+}
+
+.um-module-filter-chip--active {
+  border-color: var(--prism-primary-border-light);
+  background: var(--prism-primary-avatar-bg);
+  color: var(--prism-primary-darker);
+}
+
+.um-exam-access-mapping {
+  padding: 0.875rem 0 0;
+}
+
+.um-exam-access-mapping--inline {
+  padding: 1rem 0 0;
+}
+
+.um-exam-access-mapping--drawer {
+  padding: 0;
+}
+
+.um-exam-access-mapping__panel--drawer {
+  margin: 0;
+}
+
+.um-exam-access-mapping__inline-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--prism-text-primary);
+}
+
+.um-exam-access-mapping__panel {
+  margin-top: 0.875rem;
+}
+
+.um-col-exam-mapping-action {
+  width: 6rem;
+  text-align: left;
+}
+
+.um-btn-text {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--prism-primary-darker);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 0.125rem;
+  cursor: pointer;
+}
+
+.um-btn-text:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  text-decoration: none;
+}
+
+.um-exam-mapping-role-label {
+  font-weight: 500;
+  color: var(--prism-text-primary);
+}
+
+.um-exam-mapping-none {
+  color: var(--prism-text-secondary);
+}
+
+.um-exam-mapping-edit__options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  border: none;
+}
+
+.um-exam-mapping-edit__option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--prism-text-primary);
+  cursor: pointer;
+}
+
+.um-exam-effective__kind {
+  margin: 0;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--prism-border);
+  background: var(--prism-surface-muted);
+  color: var(--prism-text-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.um-exam-effective__block--separated {
+  border-top: 1px solid var(--prism-border);
+}
+
+.um-exam-effective__none {
+  color: var(--prism-text-secondary);
+  text-align: center;
+}
+
+.um-col-ex-course {
+  width: 38%;
+}
+
+.um-col-ex-faculty {
+  width: 22%;
+}
+
+.um-col-ex-role {
+  width: 40%;
+}
+
+.um-col-ex-assessment {
+  width: 34%;
+}
+
+.um-col-ex-granted {
+  width: 22%;
+}
+
+.um-col-ex-date {
+  width: 24%;
+  white-space: nowrap;
+}
+
+.um-col-map-faculty {
+  width: 40%;
+}
+
+.um-col-map-exam {
+  width: 46%;
+}
+
+.um-role-drawer__accordion-body--standalone {
+  margin: 0;
+  padding-left: 1.125rem;
+}

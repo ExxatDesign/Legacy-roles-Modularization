@@ -1,6 +1,8 @@
+import { EXAM_MANAGEMENT_STATIC_ROLES } from "./exam-management-roles";
 import { MODULAR_ROLES_SC1 } from "./modular-roles-sc1";
 import { MODULAR_ROLES_SC2_LEGACY, MODULAR_ROLES_SC2_NEW } from "./modular-roles-sc2";
-export type { RoleType, UserManagementRoleRow } from "./user-management-role-types";
+import { EXAM_MANAGEMENT_ENABLED } from "../lib/exam-management-feature";
+export type { ExamAccessScope, RoleType, UserManagementRoleRow } from "./user-management-role-types";
 
 /** Cross-module legacy standard roles (sunset path). */
 const LEGACY_CROSS_MODULE_ROLES: import("./user-management-role-types").UserManagementRoleRow[] = [
@@ -35,9 +37,14 @@ const LEGACY_CROSS_MODULE_ROLES: import("./user-management-role-types").UserMana
   },
 ];
 
-export const USER_MANAGEMENT_ROLE_ROWS: import("./user-management-role-types").UserManagementRoleRow[] = [
+const CORE_USER_MANAGEMENT_ROLE_ROWS: import("./user-management-role-types").UserManagementRoleRow[] = [
   ...LEGACY_CROSS_MODULE_ROLES,
   ...MODULAR_ROLES_SC2_LEGACY,
   ...MODULAR_ROLES_SC2_NEW,
   ...MODULAR_ROLES_SC1,
 ];
+
+export const USER_MANAGEMENT_ROLE_ROWS: import("./user-management-role-types").UserManagementRoleRow[] =
+  EXAM_MANAGEMENT_ENABLED
+    ? [...CORE_USER_MANAGEMENT_ROLE_ROWS, ...EXAM_MANAGEMENT_STATIC_ROLES]
+    : CORE_USER_MANAGEMENT_ROLE_ROWS;

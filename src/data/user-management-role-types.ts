@@ -1,5 +1,7 @@
 export type RoleType = "Standard" | "Custom";
 
+export type ExamAccessScope = "program" | "course-associated";
+
 export type UserManagementRoleRow = {
   id: string;
   roleName: string;
@@ -11,4 +13,8 @@ export type UserManagementRoleRow = {
   showNewTag?: boolean;
   unassignedTableVariant?: "sc2";
   manageUsersDescription?: string;
+  /** Exam Management static roles — assignable scope label */
+  examScope?: ExamAccessScope;
+  /** Shown in By Role directory for Exam static roles */
+  examRoleKind?: "static";
 };

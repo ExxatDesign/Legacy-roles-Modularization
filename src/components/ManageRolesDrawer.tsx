@@ -9,6 +9,7 @@ import {
   type ManageRolesAssignmentRow,
 } from "../data/manage-roles-rows";
 import { LegacyUnassignConfirmDialog } from "./LegacyUnassignConfirmDialog";
+import { ExamEffectiveAccessSection } from "./ExamEffectiveAccessSection";
 
 function isLegacyRoleAssignment(row: ManageRolesAssignmentRow) {
   return row.showLegacyTag === true;
@@ -279,6 +280,8 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
               </div>
             </div>
           </section>
+
+          {user ? <ExamEffectiveAccessSection user={user} /> : null}
         </div>
 
         <AssignRolesDialog

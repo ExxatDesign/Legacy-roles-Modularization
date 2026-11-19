@@ -1,4 +1,6 @@
 import type { UserManagementRow } from "./user-management-rows";
+import { EXAM_MANAGEMENT_STATIC_ROLES } from "./exam-management-roles";
+import { EXAM_MANAGEMENT_ENABLED } from "../lib/exam-management-feature";
 import { MODULAR_ROLES_SC1 } from "./modular-roles-sc1";
 import { MODULAR_ROLES_SC2_NEW } from "./modular-roles-sc2";
 import type { UserManagementRoleRow } from "./user-management-role-types";
@@ -27,15 +29,31 @@ function toManageRow(role: UserManagementRoleRow, allowAssign: boolean): ManageR
   };
 }
 
-const NEW_MODULAR_UNASSIGNED: ManageRolesAssignmentRow[] = [...MODULAR_ROLES_SC2_NEW, ...MODULAR_ROLES_SC1].map((role) =>
-  toManageRow(role, true),
-);
+const NEW_MODULAR_UNASSIGNED: ManageRolesAssignmentRow[] = [
+  ...MODULAR_ROLES_SC2_NEW,
+  ...MODULAR_ROLES_SC1,
+  ...EXAM_MANAGEMENT_STATIC_ROLES,
+].map((role) => toManageRow(role, true));
 
 const LEGACY_UNASSIGNED: ManageRolesAssignmentRow[] = USER_MANAGEMENT_ROLE_ROWS.filter(
   (role) => !role.showNewTag,
 ).map((role) => toManageRow(role, true));
 
 const BROWN_ASSIGNED: ManageRolesAssignmentRow[] = [
+  ...(EXAM_MANAGEMENT_ENABLED
+    ? [
+        {
+          id: "brown-assigned-exam-faculty",
+          roleName: "Exam Management - Faculty",
+          roleDescription:
+            "Faculty access to Exam Management for courses they are associated with.",
+          module: "Exam Management",
+          assignedDateTime: "04/03/2026 08:12:22 AM EDT",
+          allowAssign: true,
+          showNewTag: true,
+        } satisfies ManageRolesAssignmentRow,
+      ]
+    : []),
   {
     id: "brown-assigned-legacy-faculty",
     roleName: "Standard Faculty Role",
@@ -57,6 +75,18 @@ const BROWN_ASSIGNED: ManageRolesAssignmentRow[] = [
   },
 ];
 
+function examFacultyAssignmentRow(id: string): ManageRolesAssignmentRow {
+  return {
+    id,
+    roleName: "Exam Management - Faculty",
+    roleDescription: "Faculty access to Exam Management for associated courses.",
+    module: "Exam Management",
+    assignedDateTime: "04/01/2026 09:00:00 AM EDT",
+    allowAssign: true,
+    showNewTag: true,
+  };
+}
+
 const GENERIC_ASSIGNED: ManageRolesAssignmentRow[] = [
   {
     id: "generic-assigned-1",
@@ -77,6 +107,7 @@ const GENERIC_ASSIGNED: ManageRolesAssignmentRow[] = [
     allowAssign: true,
     showNewTag: true,
   },
+  examFacultyAssignmentRow("generic-assigned-exam-faculty"),
 ];
 
 /** New modular roles first, then legacy (By Name → Assign roles picker). */

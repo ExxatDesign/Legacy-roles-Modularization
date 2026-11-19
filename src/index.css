@@ -1,5 +1,6 @@
 @import "../styles/globals.css";
 @import "./styles/user-management-legacy.css";
+@import "./styles/user-management-exam-rbac.css";
 
 @layer base {
   html {

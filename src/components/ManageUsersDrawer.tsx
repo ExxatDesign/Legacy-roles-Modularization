@@ -10,8 +10,10 @@ import { AssignUserDialog } from "./AssignUserDialog";
 import { LegacyUnassignConfirmDialog } from "./LegacyUnassignConfirmDialog";
 import { RoleOverviewMetaCard } from "./RoleOverviewMetaCard";
 import { RolePermissionsOverview } from "./RolePermissionsOverview";
+import { ExamAccessMappingPanel } from "./ExamAccessMappingPanel";
+import { EXAM_MANAGEMENT_ENABLED, isExamFacultyRole } from "../lib/exam-management-feature";
 
-type ManageView = "overview" | "assigned";
+type ManageView = "overview" | "assigned" | "faculty-mapping";
 
 function IconClose() {
   return (
@@ -29,6 +31,7 @@ type ManageUsersDrawerProps = {
 export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
   const open = row !== null;
   const isNewModularRole = row?.showNewTag === true;
+  const showFacultyMappingTab = EXAM_MANAGEMENT_ENABLED && isExamFacultyRole(row);
 
   const [manageView, setManageView] = useState<ManageView>("overview");
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
@@ -163,6 +166,17 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
                 Assigned users
                 <span className="um-tab-count">{assignedPeople.length}</span>
               </button>
+              {showFacultyMappingTab ? (
+                <button
+                  type="button"
+                  role="tab"
+                  className={`um-sub-tab${manageView === "faculty-mapping" ? " um-sub-tab--active" : ""}`}
+                  aria-selected={manageView === "faculty-mapping"}
+                  onClick={() => setManageView("faculty-mapping")}
+                >
+                  Faculty role mapping
+                </button>
+              ) : null}
             </div>
             {isNewModularRole ? (
               <button
@@ -179,6 +193,8 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
             <div className="um-manage-users-drawer__overview">
               <RolePermissionsOverview row={row} includeMetaCard={false} />
             </div>
+          ) : manageView === "faculty-mapping" ? (
+            <ExamAccessMappingPanel variant="drawer" />
           ) : (
             <>
               <div className="um-manage-users-drawer__panel">
