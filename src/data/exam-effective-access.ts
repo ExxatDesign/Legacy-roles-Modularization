@@ -76,16 +76,14 @@ const JOHNSON_EFFECTIVE: ExamEffectiveAccess = {
 const EMPTY: ExamEffectiveAccess = { dynamic: [], collaborators: [] };
 
 export function getExamEffectiveAccessForUser(user: UserManagementRow): ExamEffectiveAccess {
-  if (user.name === "Brown, Dr. Michael") {
+  if (user.userName === "michael.brown@university.edu") {
     return BROWN_EFFECTIVE;
   }
-  if (user.name === "Johnson, Mary") {
+  if (user.userName === "mary.johnson@university.edu") {
     return JOHNSON_EFFECTIVE;
   }
-  if (user.moduleAccess.toLowerCase().includes("admin")) {
-    return { dynamic: [], collaborators: [] };
-  }
-  if (user.moduleAccess.toLowerCase().includes("faculty")) {
+  // Explicit demo course association; module/persona labels do not grant course membership.
+  if (user.userName === "robert.smith@university.edu") {
     return {
       dynamic: [
         {

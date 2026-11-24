@@ -68,8 +68,42 @@
 }
 
 .um-col-exam-mapping-action {
-  width: 6rem;
-  text-align: left;
+  width: 4.5rem;
+  text-align: center;
+}
+
+.um-table th.um-col-exam-mapping-action,
+.um-table td.um-col-exam-mapping-action {
+  text-align: center;
+}
+
+.um-btn-icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--prism-text-secondary);
+  cursor: pointer;
+}
+
+.um-btn-icon-action:hover {
+  background: var(--prism-primary-hover-faint);
+  color: var(--prism-primary-darker);
+}
+
+.um-btn-icon-action:focus-visible {
+  outline: 2px solid var(--prism-primary);
+  outline-offset: 2px;
+}
+
+.um-btn-icon-action .fa-pencil {
+  font-size: 0.875rem;
 }
 
 .um-btn-text {

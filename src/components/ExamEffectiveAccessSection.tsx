@@ -1,37 +1,28 @@
-import { getExamEffectiveAccessForUser } from "../data/exam-effective-access";
+import { useAccess, PROGRAM } from "../lib/access-state";
 import type { UserManagementRow } from "../data/user-management-rows";
 import { EXAM_MANAGEMENT_ENABLED } from "../lib/exam-management-feature";
-import { getAssignedRolesForUser } from "../data/manage-roles-rows";
 
 type ExamEffectiveAccessSectionProps = {
   user: UserManagementRow;
 };
 
-function userHasExamFacultyStatic(user: UserManagementRow) {
-  return getAssignedRolesForUser(user).some(
-    (role) => role.roleName === "Exam Management - Faculty",
-  );
-}
-
 export function ExamEffectiveAccessSection({ user }: ExamEffectiveAccessSectionProps) {
+  const state = useAccess();
   if (!EXAM_MANAGEMENT_ENABLED) {
     return null;
   }
 
-  const access = getExamEffectiveAccessForUser(user);
-  const showCourse = userHasExamFacultyStatic(user) || access.dynamic.length > 0;
-  const showAssessment = access.collaborators.length > 0;
-
-  if (!showCourse && !showAssessment) {
-    return null;
-  }
+  const access = state.effectiveFor(user);
+  const showCourse = state.rolesFor(user).some(role => role.roleName === "Exam Management - Faculty") || access.dynamic.length > 0;
+  if (!showCourse) return null;
 
   return (
     <section className="um-manage-roles-drawer__section" aria-labelledby="um-exam-effective-heading">
       <h3 id="um-exam-effective-heading" className="um-manage-roles-drawer__section-title">
-        Exam access
+        Course access (automatic)
       </h3>
 
+      <p>Program: {PROGRAM}</p>
       <div className="um-manage-users-drawer__panel">
         {showCourse ? (
           <div className="um-exam-effective__block">
@@ -55,7 +46,7 @@ export function ExamEffectiveAccessSection({ user }: ExamEffectiveAccessSectionP
                   {access.dynamic.length === 0 ? (
                     <tr>
                       <td colSpan={3} className="um-exam-effective__none">
-                        —
+                        No mapped course access. Assign Faculty and check course associations and faculty role mappings.
                       </td>
                     </tr>
                   ) : (
@@ -73,41 +64,7 @@ export function ExamEffectiveAccessSection({ user }: ExamEffectiveAccessSectionP
           </div>
         ) : null}
 
-        {showAssessment ? (
-          <div className={`um-exam-effective__block${showCourse ? " um-exam-effective__block--separated" : ""}`}>
-            <h4 className="um-exam-effective__kind">Assessment</h4>
-            <div className="um-manage-users-drawer__table-wrap">
-              <table className="um-table um-table--manage-roles" aria-label="Exam roles by assessment">
-                <thead>
-                  <tr>
-                    <th scope="col" className="um-col-ex-assessment">
-                      Assessment
-                    </th>
-                    <th scope="col" className="um-col-ex-role">
-                      Exam role
-                    </th>
-                    <th scope="col" className="um-col-ex-granted">
-                      Granted by
-                    </th>
-                    <th scope="col" className="um-col-ex-date">
-                      Date
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {access.collaborators.map((row) => (
-                    <tr key={row.id}>
-                      <td className="um-col-ex-assessment">{row.assessmentName}</td>
-                      <td className="um-col-ex-role">{row.collaboratorRole}</td>
-                      <td className="um-col-ex-granted">{row.grantedBy}</td>
-                      <td className="um-col-ex-date">{row.grantedAt}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : null}
+
       </div>
     </section>
   );

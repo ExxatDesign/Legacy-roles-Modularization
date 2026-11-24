@@ -1,3 +1,8 @@
+import { ExamAccessMappingPanel } from "./ExamAccessMappingPanel";
+import { EXAM_MANAGEMENT_ENABLED, isExamFacultyRole } from "../lib/exam-management-feature";
+import { useAccess } from "../lib/access-state";
+import { USER_MANAGEMENT_ROWS } from "../data/user-management-rows";
+import { EXAM_MANAGEMENT_STATIC_ROLES } from "../data/exam-management-roles";
 import { useEffect, useMemo, useState } from "react";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
 import {
@@ -10,8 +15,6 @@ import { AssignUserDialog } from "./AssignUserDialog";
 import { LegacyUnassignConfirmDialog } from "./LegacyUnassignConfirmDialog";
 import { RoleOverviewMetaCard } from "./RoleOverviewMetaCard";
 import { RolePermissionsOverview } from "./RolePermissionsOverview";
-import { ExamAccessMappingPanel } from "./ExamAccessMappingPanel";
-import { EXAM_MANAGEMENT_ENABLED, isExamFacultyRole } from "../lib/exam-management-feature";
 
 type ManageView = "overview" | "assigned" | "faculty-mapping";
 
@@ -29,9 +32,11 @@ type ManageUsersDrawerProps = {
 };
 
 export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
+  const access = useAccess();
+  const examRole = row?.examRoleKind === "static";
   const open = row !== null;
   const isNewModularRole = row?.showNewTag === true;
-  const showFacultyMappingTab = EXAM_MANAGEMENT_ENABLED && isExamFacultyRole(row);
+  const showFacultyMapping = EXAM_MANAGEMENT_ENABLED && isExamFacultyRole(row);
 
   const [manageView, setManageView] = useState<ManageView>("overview");
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
@@ -77,10 +82,7 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
     };
   }, [assignDialogOpen, open, onClose, pendingUnassign]);
 
-  const assignedPeople = useMemo(
-    () => MANAGE_USERS_ASSIGNED_ROWS.filter((user) => !unassignedIds.includes(user.id)),
-    [unassignedIds],
-  );
+  const assignedPeople = examRole ? USER_MANAGEMENT_ROWS.filter(user => access.rolesFor(user).some(role => role.roleName === row?.roleName)).map(user => ({ id: user.userName, name: user.name, email: user.emailId })) : MANAGE_USERS_ASSIGNED_ROWS.filter(user => !unassignedIds.includes(user.id));
 
   const assignedRows = useMemo(() => {
     const query = userSearchQuery.trim().toLowerCase();
@@ -94,8 +96,8 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
   }, [assignedPeople, userSearchQuery]);
 
   const usersForAssign = useMemo(
-    () => filterUnassignedUsersForRole(MANAGE_USERS_UNASSIGNED_ROWS, assignedPeople),
-    [assignedPeople],
+    () => filterUnassignedUsersForRole(examRole ? USER_MANAGEMENT_ROWS.map(user => ({ id: user.userName, name: user.name, email: user.emailId })) : MANAGE_USERS_UNASSIGNED_ROWS, assignedPeople),
+    [assignedPeople, examRole],
   );
 
   const handleUnassignClick = (user: ManageUsersAssignedRow) => {
@@ -104,7 +106,10 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
 
   const confirmLegacyUnassign = () => {
     if (pendingUnassign) {
-      setUnassignedIds((current) => [...current, pendingUnassign.id]);
+      const user = USER_MANAGEMENT_ROWS.find(user => user.emailId === pendingUnassign.email);
+      const assignment = user ? access.rolesFor(user).find(role => role.roleName === row?.roleName) : undefined;
+      if (examRole && user && assignment) access.unassign(user, assignment.id);
+      else setUnassignedIds((current) => [...current, pendingUnassign.id]);
     }
     setPendingUnassign(null);
   };
@@ -166,17 +171,16 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
                 Assigned users
                 <span className="um-tab-count">{assignedPeople.length}</span>
               </button>
-              {showFacultyMappingTab ? (
+              {showFacultyMapping ? (
                 <button
                   type="button"
                   role="tab"
                   className={`um-sub-tab${manageView === "faculty-mapping" ? " um-sub-tab--active" : ""}`}
                   aria-selected={manageView === "faculty-mapping"}
                   onClick={() => setManageView("faculty-mapping")}
-                >
-                  Faculty role mapping
-                </button>
+                >Faculty role mapping</button>
               ) : null}
+
             </div>
             {isNewModularRole ? (
               <button
@@ -193,7 +197,7 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
             <div className="um-manage-users-drawer__overview">
               <RolePermissionsOverview row={row} includeMetaCard={false} />
             </div>
-          ) : manageView === "faculty-mapping" ? (
+          ) : manageView === "faculty-mapping" && showFacultyMapping ? (
             <ExamAccessMappingPanel variant="drawer" />
           ) : (
             <>
@@ -244,6 +248,14 @@ export function ManageUsersDrawer({ row, onClose }: ManageUsersDrawerProps) {
           users={usersForAssign}
           assignedUsers={assignedPeople}
           role={row}
+          onAssign={people => {
+            const role = EXAM_MANAGEMENT_STATIC_ROLES.find(role => role.id === row?.id);
+            if (!role) return;
+            people.forEach(person => {
+              const user = USER_MANAGEMENT_ROWS.find(user => user.emailId === person.email);
+              if (user) access.assign(user, [{ id: role.id, roleName: role.roleName, roleDescription: role.roleDescription, module: "Exam Management", showNewTag: true }]);
+            });
+          }}
           onClose={() => setAssignDialogOpen(false)}
           onViewDetails={() => setAssignDialogOpen(false)}
         />

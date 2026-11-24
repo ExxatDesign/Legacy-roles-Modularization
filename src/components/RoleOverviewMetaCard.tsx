@@ -1,3 +1,4 @@
+import { PROGRAM } from "../lib/access-state";
 import { RoleModulesCell } from "./RoleModulesCell";
 import { RoleNameWithTags } from "./RoleNameWithTags";
 import type { UserManagementRoleRow } from "../data/user-management-role-rows";
@@ -49,6 +50,7 @@ export function RoleOverviewMetaCard({ row, className }: RoleOverviewMetaCardPro
             <dt className="um-role-meta__label">Persona</dt>
             <dd className="um-role-meta__value">{persona}</dd>
           </div>
+          {row?.examScope ? <div className="um-role-meta__fact"><dt className="um-role-meta__label">Scope</dt><dd className="um-role-meta__value">{row.examScope === "program" ? PROGRAM : "Associated course offerings"}</dd></div> : null}
         </dl>
 
         <p className="um-role-meta__summary">

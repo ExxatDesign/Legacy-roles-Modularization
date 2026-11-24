@@ -114,7 +114,7 @@ const GENERIC_ASSIGNED: ManageRolesAssignmentRow[] = [
 const UNASSIGNED_ROLES: ManageRolesAssignmentRow[] = [...NEW_MODULAR_UNASSIGNED, ...LEGACY_UNASSIGNED];
 
 export function getAssignedRolesForUser(user: UserManagementRow): ManageRolesAssignmentRow[] {
-  if (user.name === "Brown, Dr. Michael") {
+  if (user.userName === "michael.brown@university.edu") {
     return BROWN_ASSIGNED;
   }
   if (user.associatedRoles <= 1) {
@@ -124,5 +124,5 @@ export function getAssignedRolesForUser(user: UserManagementRow): ManageRolesAss
 }
 
 export function getUnassignedRolesForUser(_user: UserManagementRow): ManageRolesAssignmentRow[] {
-  return UNASSIGNED_ROLES;
+  return UNASSIGNED_ROLES.filter(role => EXAM_MANAGEMENT_ENABLED || role.module !== "Exam Management");
 }

@@ -1,3 +1,4 @@
+import { useAccess } from "../lib/access-state";
 import { useMemo, useState } from "react";
 import { UserManagementSiteHeader } from "../components/UserManagementSiteHeader";
 import { ManageRolesDrawer } from "../components/ManageRolesDrawer";
@@ -67,6 +68,7 @@ function isEmptyLogin(value: string) {
 }
 
 export function UserManagementPage() {
+  const access = useAccess();
   const [rolesView, setRolesView] = useState<RolesView>("by-role");
   const [manageUsersRole, setManageUsersRole] = useState<UserManagementRoleRow | null>(null);
   const [manageRolesUser, setManageRolesUser] = useState<UserManagementRow | null>(null);
@@ -93,8 +95,8 @@ export function UserManagementPage() {
       filtered.sort((a, b) => Number(Boolean(b.showNewTag)) - Number(Boolean(a.showNewTag)));
     }
 
-    return filtered;
-  }, [onlyLegacyRoles, roleSearchQuery]);
+    return filtered.map(role => role.examRoleKind === "static" ? { ...role, totalUsers: USER_MANAGEMENT_ROWS.filter(user => access.rolesFor(user).some(item => item.roleName === role.roleName)).length } : role);
+  }, [onlyLegacyRoles, roleSearchQuery, access]);
 
   const byRolePaginatorRange = useMemo(() => {
     const total = byRoleRows.length;
@@ -152,6 +154,8 @@ export function UserManagementPage() {
               >
                 By Name
               </button>
+
+
             </div>
 
             {rolesView === "by-role" ? (
@@ -350,7 +354,7 @@ export function UserManagementPage() {
                         <td className="um-col-user">{row.userName}</td>
                         <td className="um-col-email">{row.emailId}</td>
                         <td className="um-col-roles">
-                          <span className="um-role-count">{row.associatedRoles}</span>
+                          <span className="um-role-count">{access.rolesFor(row).length}</span>
                         </td>
                         <td className="um-col-module">{row.moduleAccess}</td>
                         <td

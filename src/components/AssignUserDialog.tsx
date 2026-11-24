@@ -129,10 +129,6 @@ export function AssignUserDialog({
       return;
     }
     setListOpen(false);
-    if (phase === "edit") {
-      setPhase("error");
-      return;
-    }
     onAssign?.(selectedUsers);
     setPhase("success");
   };

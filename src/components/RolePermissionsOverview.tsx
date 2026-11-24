@@ -35,7 +35,7 @@ type RolePermissionsOverviewProps = {
 
 export function RolePermissionsOverview({ row, includeMetaCard = true }: RolePermissionsOverviewProps) {
   const showExamNav = row?.modules.includes(EXAM_MANAGEMENT_MODULE) === true;
-  const permissionNav = showExamNav ? [...BASE_PERMISSION_NAV, "Exam Management" as const] : [...BASE_PERMISSION_NAV];
+  const permissionNav = showExamNav ? ["Exam Management" as const] : [...BASE_PERMISSION_NAV];
   const [activeNav, setActiveNav] = useState<PermissionNavId>("General");
   const examPermissionGroups = getExamPermissionsForRole(row?.id);
 

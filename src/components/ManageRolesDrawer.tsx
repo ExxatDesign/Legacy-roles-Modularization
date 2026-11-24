@@ -1,15 +1,14 @@
+import { useAccess } from "../lib/access-state";
 import { useEffect, useMemo, useState } from "react";
 import { AssignRolesDialog } from "./AssignRolesDialog";
 import { RoleNameWithTags } from "./RoleNameWithTags";
 import { UserProfileOverview } from "./UserProfileOverview";
 import type { UserManagementRow } from "../data/user-management-rows";
 import {
-  getAssignedRolesForUser,
   getUnassignedRolesForUser,
   type ManageRolesAssignmentRow,
 } from "../data/manage-roles-rows";
 import { LegacyUnassignConfirmDialog } from "./LegacyUnassignConfirmDialog";
-import { ExamEffectiveAccessSection } from "./ExamEffectiveAccessSection";
 
 function isLegacyRoleAssignment(row: ManageRolesAssignmentRow) {
   return row.showLegacyTag === true;
@@ -29,13 +28,13 @@ type ManageRolesDrawerProps = {
 };
 
 export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
+  const access = useAccess();
   const open = user !== null;
 
   const [roleSearchQuery, setRoleSearchQuery] = useState("");
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [pendingUnassign, setPendingUnassign] = useState<ManageRolesAssignmentRow | null>(null);
-  const [unassignedRoleIds, setUnassignedRoleIds] = useState<string[]>([]);
-  const [addedRoles, setAddedRoles] = useState<ManageRolesAssignmentRow[]>([]);
+
 
   useEffect(() => {
     if (!open) {
@@ -44,8 +43,7 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
     setRoleSearchQuery("");
     setAssignDialogOpen(false);
     setPendingUnassign(null);
-    setUnassignedRoleIds([]);
-    setAddedRoles([]);
+
   }, [open, user?.userName]);
 
   useEffect(() => {
@@ -75,24 +73,8 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
     };
   }, [assignDialogOpen, open, onClose, pendingUnassign]);
 
-  const assignedRows = useMemo(
-    () => (user ? [...getAssignedRolesForUser(user), ...addedRoles] : addedRoles),
-    [addedRoles, user],
-  );
-  const unassignedRoles = useMemo(() => {
-    if (!user) {
-      return [];
-    }
-    const assignedNames = new Set(
-      assignedRows.filter((row) => !unassignedRoleIds.includes(row.id)).map((row) => row.roleName),
-    );
-    return getUnassignedRolesForUser(user).filter((role) => !assignedNames.has(role.roleName));
-  }, [assignedRows, unassignedRoleIds, user]);
-
-  const currentlyAssignedRows = useMemo(
-    () => assignedRows.filter((row) => !unassignedRoleIds.includes(row.id)),
-    [assignedRows, unassignedRoleIds],
-  );
+  const currentlyAssignedRows = user ? access.rolesFor(user) : [];
+  const unassignedRoles = user ? getUnassignedRolesForUser(user).filter(role => !currentlyAssignedRows.some(item => item.roleName === role.roleName)) : [];
 
   const filteredAssignedRows = useMemo(() => {
     const query = roleSearchQuery.trim().toLowerCase();
@@ -113,30 +95,13 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
 
   const confirmLegacyUnassign = () => {
     if (pendingUnassign) {
-      setUnassignedRoleIds((current) => [...current, pendingUnassign.id]);
+      if (user) access.unassign(user, pendingUnassign.id);
     }
     setPendingUnassign(null);
   };
 
   const assignRoles = (roles: ManageRolesAssignmentRow[]) => {
-    const assignedDateTime = new Intl.DateTimeFormat("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    }).format(new Date());
-    setAddedRoles((current) => [
-      ...current,
-      ...roles.map((role, index) => ({
-        ...role,
-        id: `${role.id}-assigned-${current.length + index}`,
-        assignedDateTime,
-        allowAssign: true,
-      })),
-    ]);
+    if (user) access.assign(user, roles);
   };
 
   const totalRows = filteredAssignedRows.length;
@@ -281,7 +246,6 @@ export function ManageRolesDrawer({ user, onClose }: ManageRolesDrawerProps) {
             </div>
           </section>
 
-          {user ? <ExamEffectiveAccessSection user={user} /> : null}
         </div>
 
         <AssignRolesDialog

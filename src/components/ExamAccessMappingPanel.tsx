@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useAccess } from "../lib/access-state";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   EXAM_COURSE_ROLE_LABELS,
   examCourseRoleLabel,
-  INITIAL_EXAM_FACULTY_ROLE_MAPPINGS,
   type ExamCourseRoleKey,
   type ExamFacultyRoleMappingRow,
 } from "../data/exam-faculty-role-mapping";
@@ -17,6 +17,23 @@ type ExamMappingEditDialogProps = {
 function ExamMappingEditDialog({ row, onClose, onSave }: ExamMappingEditDialogProps) {
   const [selected, setSelected] = useState<ExamCourseRoleKey>(row?.examCourseRole ?? "none");
 
+  const cardRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!row) return;
+    const previous = document.activeElement as HTMLElement | null;
+    cardRef.current?.querySelector<HTMLInputElement>("input:checked")?.focus();
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); onClose(); }
+      if (event.key === "Tab") {
+        const nodes = Array.from(cardRef.current?.querySelectorAll<HTMLElement>("input:checked, button") ?? []);
+        const first = nodes[0]; const last = nodes[nodes.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    };
+    document.addEventListener("keydown", keydown, true);
+    return () => { document.removeEventListener("keydown", keydown, true); previous?.focus(); };
+  }, [row, onClose]);
   if (!row) {
     return null;
   }
@@ -32,6 +49,7 @@ function ExamMappingEditDialog({ row, onClose, onSave }: ExamMappingEditDialogPr
       <button type="button" className="um-assign-user-dialog__backdrop" aria-label="Cancel" onClick={onClose} />
       <div
         className="um-assign-user-dialog__card um-assign-user-dialog__card--confirm"
+        ref={cardRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="um-exam-mapping-edit-title"
@@ -80,7 +98,7 @@ type ExamAccessMappingPanelProps = {
 };
 
 export function ExamAccessMappingPanel({ variant = "standalone" }: ExamAccessMappingPanelProps) {
-  const [mappings, setMappings] = useState(INITIAL_EXAM_FACULTY_ROLE_MAPPINGS);
+  const { mappings, setMappings } = useAccess();
   const [editRow, setEditRow] = useState<ExamFacultyRoleMappingRow | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -160,8 +178,13 @@ export function ExamAccessMappingPanel({ variant = "standalone" }: ExamAccessMap
                     </span>
                   </td>
                   <td className="um-col-exam-mapping-action">
-                    <button type="button" className="um-btn-text" onClick={() => setEditRow(row)}>
-                      Edit
+                    <button
+                      type="button"
+                      className="um-btn-icon-action"
+                      aria-label={`Edit mapping for ${row.facultyRoleName}`}
+                      onClick={() => setEditRow(row)}
+                    >
+                      <i className="fa-solid fa-pencil" aria-hidden="true" />
                     </button>
                   </td>
                 </tr>
@@ -171,7 +194,7 @@ export function ExamAccessMappingPanel({ variant = "standalone" }: ExamAccessMap
         </div>
       </div>
 
-      <ExamMappingEditDialog row={editRow} onClose={() => setEditRow(null)} onSave={saveMapping} />
+      <ExamMappingEditDialog key={editRow?.id ?? "closed"} row={editRow} onClose={() => setEditRow(null)} onSave={saveMapping} />
     </div>
   );
 }
